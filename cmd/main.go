@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 
 	"github.com/joshuabezaleel/library-server/persistence"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"

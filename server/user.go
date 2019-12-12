@@ -84,7 +84,6 @@ func (handler *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	respondWithJSON(w, http.StatusOK, newUser)
-
 }
 
 func (handler *userHandler) deleteUser(w http.ResponseWriter, r *http.Request) {
