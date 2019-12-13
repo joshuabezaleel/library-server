@@ -30,9 +30,9 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 	}
 
 	authHandler := authHandler{authService}
-	bookHandler := bookHandler{bookService}
-	bookCopyHandler := bookCopyHandler{bookCopyService}
-	userHandler := userHandler{userService}
+	bookHandler := bookHandler{bookService, authService}
+	bookCopyHandler := bookCopyHandler{bookCopyService, authService}
+	userHandler := userHandler{userService, authService}
 
 	router := mux.NewRouter()
 

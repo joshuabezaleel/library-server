@@ -50,6 +50,6 @@ func main() {
 
 	err = http.ListenAndServe(serverPort, srv.Router)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
 
 	"github.com/gorilla/mux"
@@ -11,14 +12,15 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
 func (handler *userHandler) registerRouter(router *mux.Router) {
 	// CRUD endpoints.
 	router.HandleFunc("/users", handler.createUser).Methods("POST")
 	router.HandleFunc("/users/{userID}", handler.getUser).Methods("GET")
-	router.HandleFunc("/users/{userID}", handler.updateUser).Methods("PUT")
-	router.HandleFunc("/users/{userID}", handler.deleteUser).Methods("DELETE")
+	router.HandleFunc("/users/{userID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckSameUser(handler.updateUser))).Methods("PUT")
+	router.HandleFunc("/users/{userID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckSameUser(handler.deleteUser))).Methods("DELETE")
 
 	// Other endpoints.
 }

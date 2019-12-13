@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 
 	"github.com/gorilla/mux"
@@ -11,14 +12,15 @@ import (
 
 type bookCopyHandler struct {
 	bookCopyService bookcopy.Service
+	authService     auth.Service
 }
 
 func (handler *bookCopyHandler) registerRouter(router *mux.Router) {
 	// CRUD endpoints.
-	router.HandleFunc("/books/{bookID}/bookcopies", handler.createBookCopy).Methods("POST")
+	router.HandleFunc("/books/{bookID}/bookcopies", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.createBookCopy))).Methods("POST")
 	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.getBookCopy).Methods("GET")
-	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.updateBookCopy).Methods("PUT")
-	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.deleteBookCopy).Methods("DELETE")
+	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBookCopy))).Methods("PUT")
+	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBookCopy))).Methods("DELETE")
 
 	// Other endpoints.
 }

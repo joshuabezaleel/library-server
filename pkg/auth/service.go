@@ -59,6 +59,8 @@ func (s *service) ComparePassword(incomingPassword, storedPassword string) (bool
 	return true, nil
 }
 
+// nolint
+// NOLINT
 func (s *service) CheckLoggedInMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims := jwt.MapClaims{}
@@ -82,16 +84,17 @@ func (s *service) CheckLoggedInMiddleware(next http.HandlerFunc) http.HandlerFun
 				if token.Valid {
 					username := claims["username"].(string)
 
-					var contextKey contextKeyType
-					contextKey = "username"
-					ctx := context.WithValue(r.Context(), contextKey, username)
+					// var contextKey contextKeyType
+					// contextKey = "username"
+					// nolint
+					ctx := context.WithValue(r.Context(), "username", username) // NOLINT
 					next(w, r.WithContext(ctx))
 				} else {
-					w.Write([]byte("Invalid authorization token"))
+					respondWithError(w, http.StatusUnauthorized, "Invalid authorization token")
 				}
 			}
 		} else {
-			w.Write([]byte("An authorization header is required"))
+			respondWithError(w, http.StatusNotAcceptable, "An authorization header is required")
 		}
 	})
 }
@@ -102,13 +105,12 @@ func (s *service) CheckLibrarian(next http.HandlerFunc) http.HandlerFunc {
 
 		isLibrarian, err := s.userService.CheckLibrarian(username)
 		if err != nil {
-			w.Write([]byte(err.Error()))
+			respondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		if isLibrarian {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("You are not authorized to perform this action"))
+		if !isLibrarian {
+			respondWithError(w, http.StatusUnauthorized, "You are not authorized as a librarian to perform this action")
 		} else {
 			next(w, r)
 		}
@@ -122,13 +124,12 @@ func (s *service) CheckSameUser(next http.HandlerFunc) http.HandlerFunc {
 		vars := mux.Vars(r)
 		username, ok := vars["username"]
 		if !ok {
-			respondWithError(w, http.StatusBadRequest, "Username not found.")
+			respondWithError(w, http.StatusBadRequest, "Username not found")
 			return
 		}
 
 		if usernameLoggedIn != username {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("You are not authorized to perform this command."))
+			respondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
 		} else {
 			next(w, r)
 		}
