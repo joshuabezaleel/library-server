@@ -6,6 +6,7 @@ import "time"
 type User struct {
 	ID           string    `json:"id" db:"id"`
 	StudentID    string    `json:"studentID" db:"student_id"`
+	Role         string    `json:"role" db:"role"`
 	Username     string    `json:"username" db:"username"`
 	Email        string    `json:"email" db:"email"`
 	Password     string    `json:"password" db:"password"`
@@ -13,10 +14,11 @@ type User struct {
 }
 
 // NewUser creates a new instance of User domain model.
-func NewUser(id string, studentID string, username string, email string, password string, registeredAt time.Time) *User {
+func NewUser(id string, studentID string, role string, username string, email string, password string, registeredAt time.Time) *User {
 	return &User{
 		ID:           id,
 		StudentID:    studentID,
+		Role:         role,
 		Username:     username,
 		Email:        email,
 		Password:     password,
