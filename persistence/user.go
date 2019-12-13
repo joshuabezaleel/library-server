@@ -63,3 +63,25 @@ func (repo *userRepository) Delete(userID string) error {
 
 	return nil
 }
+
+func (repo *userRepository) GetIDByUsername(username string) (string, error) {
+	var userID string
+
+	err := repo.DB.QueryRow("SELECT id FROM users WHERE username=$1", username).Scan(&userID)
+	if err != nil {
+		return "", err
+	}
+
+	return userID, nil
+}
+
+func (repo *userRepository) CheckLibrarian(userID string) (string, error) {
+	var role string
+
+	err := repo.DB.QueryRow("SELECT role FROM users WHERE id=$1", userID).Scan(&role)
+	if err != nil {
+		return "", err
+	}
+
+	return role, nil
+}

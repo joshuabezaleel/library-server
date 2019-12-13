@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"time"
 
 	"github.com/segmentio/ksuid"
@@ -16,7 +17,8 @@ type Service interface {
 	Delete(userID string) error
 
 	// Other operations.
-
+	GetUserIDByUsername(username string) (string, error)
+	CheckLibrarian(username string) (bool, error)
 }
 
 type service struct {
@@ -49,6 +51,28 @@ func (s *service) Update(user *User) (*User, error) {
 
 func (s *service) Delete(userID string) error {
 	return s.userRepository.Delete(userID)
+}
+
+func (s *service) GetUserIDByUsername(username string) (string, error) {
+	return s.userRepository.GetIDByUsername(username)
+}
+
+func (s *service) CheckLibrarian(username string) (bool, error) {
+	userID, err := s.GetUserIDByUsername(username)
+	if err != nil {
+		return false, err
+	}
+
+	role, err := s.userRepository.CheckLibrarian(userID)
+	if err != nil {
+		return false, err
+	}
+
+	if role != "librarian" {
+		return false, errors.New("You are not authorized as a librarian to perform this action")
+	}
+
+	return true, nil
 }
 
 func newUserID() string {

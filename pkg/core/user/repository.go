@@ -9,4 +9,6 @@ type Repository interface {
 	Delete(userID string) error
 
 	// Other operations.
+	GetIDByUsername(username string) (string, error)
+	CheckLibrarian(userID string) (string, error)
 }
