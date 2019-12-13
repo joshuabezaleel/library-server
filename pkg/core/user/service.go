@@ -32,7 +32,7 @@ func NewUserService(userRepository Repository) Service {
 }
 
 func (s *service) Create(user *User) (*User, error) {
-	newUser := NewUser(newUserID(), user.Username, user.Email, hashAndSalt([]byte(user.Password)), time.Now())
+	newUser := NewUser(newUserID(), user.StudentID, user.Username, user.Email, hashAndSalt([]byte(user.Password)), time.Now())
 
 	return s.userRepository.Save(newUser)
 }

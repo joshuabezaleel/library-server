@@ -19,7 +19,7 @@ func NewUserRepository(DB *sqlx.DB) user.Repository {
 }
 
 func (repo *userRepository) Save(user *user.User) (*user.User, error) {
-	_, err := repo.DB.NamedExec("INSERT INTO users (id, username, email, password, registered_at) VALUES (:id, :username, :email, :password, :registered_at)", user)
+	_, err := repo.DB.NamedExec("INSERT INTO users (id, student_id, username, email, password, registered_at) VALUES (:id, :student_id, :username, :email, :password, :registered_at)", user)
 
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (repo *userRepository) Get(userID string) (*user.User, error) {
 }
 
 func (repo *userRepository) Update(user *user.User) (*user.User, error) {
-	_, err := repo.DB.NamedExec("UPDATE users SET username=:username, email=:email, password=:password WHERE id=:id", user)
+	_, err := repo.DB.NamedExec("UPDATE users SET student_id=:student_id, username=:username, email=:email, password=:password WHERE id=:id", user)
 
 	if err != nil {
 		return nil, err
