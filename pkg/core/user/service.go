@@ -42,6 +42,8 @@ func (s *service) Get(userID string) (*User, error) {
 }
 
 func (s *service) Update(user *User) (*User, error) {
+	user.Password = hashAndSalt([]byte(user.Password))
+
 	return s.userRepository.Update(user)
 }
 

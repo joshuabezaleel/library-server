@@ -29,14 +29,14 @@ func (repo *userRepository) Save(user *user.User) (*user.User, error) {
 }
 
 func (repo *userRepository) Get(userID string) (*user.User, error) {
-	user := &user.User{}
+	user := user.User{}
 
 	err := repo.DB.QueryRowx("SELECT * FROM users WHERE id=$1", userID).StructScan(&user)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (repo *userRepository) Update(user *user.User) (*user.User, error) {
