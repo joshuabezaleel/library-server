@@ -34,8 +34,8 @@ type service struct {
 	userService    user.Service
 }
 
-// NewService creates an instance of the service for user domain model with necessary dependencies.
-func NewService(authRepository Repository, userService user.Service) Service {
+// NewAuthService creates an instance of the service for user domain model with necessary dependencies.
+func NewAuthService(authRepository Repository, userService user.Service) Service {
 	return &service{
 		authRepository: authRepository,
 		userService:    userService,
