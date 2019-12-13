@@ -78,6 +78,13 @@ func (handler *bookCopyHandler) updateBookCopy(w http.ResponseWriter, r *http.Re
 	defer r.Body.Close()
 
 	vars := mux.Vars(r)
+	bookID, ok := vars["bookID"]
+	if !ok {
+		respondWithError(w, http.StatusBadRequest, "Invalid book ID")
+		return
+	}
+	bookCopy.BookID = bookID
+
 	bookCopyID, ok := vars["bookCopyID"]
 	if !ok {
 		respondWithError(w, http.StatusBadRequest, "Invalid book copy ID")
