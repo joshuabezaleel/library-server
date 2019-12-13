@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
@@ -33,13 +35,15 @@ func main() {
 
 	// Setting up domain repositories.
 	bookRepository := persistence.NewBookRepository(db)
+	bookCopyRepository := persistence.NewBookCopyRepository(db)
 	userRepository := persistence.NewUserRepository(db)
 
 	// Setting up domain services.
 	bookService := book.NewBookService(bookRepository)
+	bookCopyService := bookcopy.NewBookCopyService(bookCopyRepository)
 	userService := user.NewUserService(userRepository)
 
-	srv := server.NewServer(bookService, userService)
+	srv := server.NewServer(bookService, bookCopyService, userService)
 	fmt.Println("Server is running...")
 
 	err = http.ListenAndServe(serverPort, srv.Router)
