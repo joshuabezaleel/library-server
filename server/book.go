@@ -50,13 +50,13 @@ func (handler *bookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newBook, err := handler.bookService.Get(bookID)
+	book, err := handler.bookService.Get(bookID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, newBook)
+	respondWithJSON(w, http.StatusOK, book)
 }
 
 func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
@@ -77,13 +77,13 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	}
 	book.ID = bookID
 
-	newBook, err := handler.bookService.Update(&book)
+	updatedBook, err := handler.bookService.Update(&book)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, newBook)
+	respondWithJSON(w, http.StatusOK, updatedBook)
 }
 
 func (handler *bookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {

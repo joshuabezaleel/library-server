@@ -50,13 +50,13 @@ func (handler *userHandler) getUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newUser, err := handler.userService.Get(userID)
+	user, err := handler.userService.Get(userID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, newUser)
+	respondWithJSON(w, http.StatusOK, user)
 }
 
 func (handler *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
@@ -77,13 +77,13 @@ func (handler *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	user.ID = userID
 
-	newUser, err := handler.userService.Update(&user)
+	updatedUser, err := handler.userService.Update(&user)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, newUser)
+	respondWithJSON(w, http.StatusOK, updatedUser)
 }
 
 func (handler *userHandler) deleteUser(w http.ResponseWriter, r *http.Request) {
