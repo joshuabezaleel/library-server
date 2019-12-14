@@ -2,6 +2,9 @@ package borrowing
 
 // Service provides basic operations on Borrowing domain model.
 type Service interface {
+	// CRUD operations.
+	Get(borrowID string) (*Borrow, error)
+
 	Borrow(userID string, bookCopyID string) error
 	Return(userID string, bokoCopyID string) error
 }
@@ -18,10 +21,14 @@ func NewBorrowingService(borrowingRepository Repository) Service {
 	}
 }
 
+func (s *service) Get(borrowID string) (*Borrow, error) {
+	return s.borrowingRepository.Get(borrowID)
+}
+
 func (s *service) Borrow(userID string, bookCopyID string) error {
-	return nil
+	return s.borrowingRepository.Borrow(userID, bookCopyID)
 }
 
 func (s *service) Return(userID string, bookCopyID string) error {
-	return nil
+	return s.borrowingRepository.Return(userID, bookCopyID)
 }

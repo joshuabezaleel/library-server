@@ -12,10 +12,11 @@ type Borrow struct {
 	Fine       uint32    `json:"fine" db:"fine"`
 	BorrowedAt time.Time `json:"borrowedAt" db:"borrowed_at"`
 	DueDate    time.Time `json:"dueDate" db:"due_date"`
+	ReturnedAt time.Time `json:"returnedAt" db:"returned_at"`
 }
 
 // NewBorrow creates a new instance of Borrow domain model.
-func NewBorrow(id string, userID string, bookCopyID string, borrowedAt time.Time, dueDate time.Time, fine uint32) *Borrow {
+func NewBorrow(id string, userID string, bookCopyID string, fine uint32, borrowedAt time.Time, dueDate time.Time, returnedAt time.Time) *Borrow {
 	return &Borrow{
 		ID:         id,
 		UserID:     userID,
@@ -23,5 +24,6 @@ func NewBorrow(id string, userID string, bookCopyID string, borrowedAt time.Time
 		Fine:       fine,
 		BorrowedAt: borrowedAt,
 		DueDate:    dueDate,
+		ReturnedAt: returnedAt,
 	}
 }
