@@ -5,6 +5,7 @@ type Service interface {
 	// CRUD operations.
 	Get(borrowID string) (*Borrow, error)
 
+	// Other operations.
 	Borrow(userID string, bookCopyID string) error
 	Return(userID string, bokoCopyID string) error
 }

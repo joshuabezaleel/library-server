@@ -18,6 +18,10 @@ func NewBorrowRepository(DB *sqlx.DB) borrowing.Repository {
 	}
 }
 
+func (repo *borrowRepository) Get(borrowID string) (*borrowing.Borrow, error) {
+	return nil, nil
+}
+
 func (repo *borrowRepository) Borrow(userID string, bookCopyID string) error {
 	return nil
 }
