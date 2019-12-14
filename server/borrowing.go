@@ -38,13 +38,13 @@ func (handler *borrowingHandler) borrowBookCopy(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = handler.borrowingService.Borrow(userID, bookCopyID)
+	borrow, err := handler.borrowingService.Borrow(userID, bookCopyID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, "Book copy "+bookCopyID+" is borrowed by user "+userID)
+	respondWithJSON(w, http.StatusOK, borrow)
 }
 
 func (handler *borrowingHandler) returnBookCopy(w http.ResponseWriter, r *http.Request) {
@@ -62,11 +62,11 @@ func (handler *borrowingHandler) returnBookCopy(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	err = handler.borrowingService.Return(userID, bookCopyID)
+	borrow, err := handler.borrowingService.Return(userID, bookCopyID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, "Book copy "+bookCopyID+" is returned by user "+userID)
+	respondWithJSON(w, http.StatusOK, borrow)
 }

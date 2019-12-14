@@ -18,14 +18,48 @@ func NewBorrowRepository(DB *sqlx.DB) borrowing.Repository {
 	}
 }
 
+func (repo *borrowRepository) Borrow(borrow *borrowing.Borrow) (*borrowing.Borrow, error) {
+	_, err := repo.DB.NamedExec("INSERT INTO borrows (id, user_id, bookcopy_id, fine, borrowed_at, due_date, returned_at) VALUES (:id, :user_id, :bookcopy_id, :fine, :borrowed_at, :due_date, :returned_at)", borrow)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return borrow, nil
+}
+
 func (repo *borrowRepository) Get(borrowID string) (*borrowing.Borrow, error) {
-	return nil, nil
+	borrow := borrowing.Borrow{}
+
+	err := repo.DB.QueryRowx("SELECT * FROM borrows WHERE id=$1", borrowID).StructScan(&borrow)
+	if err != nil {
+		return nil, err
+	}
+
+	return &borrow, nil
 }
 
-func (repo *borrowRepository) Borrow(userID string, bookCopyID string) error {
-	return nil
+func (repo *borrowRepository) GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*borrowing.Borrow, error) {
+	borrow := borrowing.Borrow{}
+
+	err := repo.DB.QueryRowx("SELECT * FROM borrows WHERE user_id=$1 AND bookcopy_id=$2", userID, bookCopyID).StructScan(&borrow)
+	if err != nil {
+		return nil, err
+	}
+
+	return &borrow, nil
 }
 
-func (repo *borrowRepository) Return(userID string, bookCopyID string) error {
-	return nil
+func (repo *borrowRepository) Return(borrow *borrowing.Borrow) (*borrowing.Borrow, error) {
+	_, err := repo.DB.NamedExec("UPDATE borrows SET fine=:fine, returned_at=:returned_at WHERE id=:id", borrow)
+	if err != nil {
+		return nil, err
+	}
+
+	returnedBorrow, err := repo.Get(borrow.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return returnedBorrow, nil
 }

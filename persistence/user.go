@@ -85,3 +85,23 @@ func (repo *userRepository) CheckLibrarian(userID string) (string, error) {
 
 	return role, nil
 }
+
+func (repo *userRepository) AddFine(userID string, fine uint32) error {
+	_, err := repo.DB.Exec("UPDATE users SET total_fine=$1 WHERE id=$2", fine, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo *userRepository) GetTotalFine(userID string) (uint32, error) {
+	var totalFine uint32
+
+	err := repo.DB.QueryRowx("SELECT total_fine FROM users WHERE id=$1", userID).Scan(&totalFine)
+	if err != nil {
+		return 0, err
+	}
+
+	return totalFine, nil
+}

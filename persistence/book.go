@@ -41,7 +41,6 @@ func (repo *bookRepository) Get(bookID string) (*book.Book, error) {
 
 func (repo *bookRepository) Update(book *book.Book) (*book.Book, error) {
 	_, err := repo.DB.NamedExec("UPDATE books SET title=:title, publisher=:publisher, year_published=:year_published, call_number=:call_number, cover_picture=:cover_picture, isbn=:isbn, book_collation=:book_collation, edition=:edition, description=:description, loc_classification=:loc_classification, subject=:subject, author=:author, quantity=:quantity WHERE id=:id", book)
-
 	if err != nil {
 		return nil, err
 	}

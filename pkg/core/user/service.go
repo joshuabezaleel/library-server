@@ -19,6 +19,8 @@ type Service interface {
 	// Other operations.
 	GetUserIDByUsername(username string) (string, error)
 	CheckLibrarian(username string) (bool, error)
+	AddFine(userID string, fine uint32) (uint32, error)
+	GetTotalFine(userID string) (uint32, error)
 }
 
 type service struct {
@@ -73,6 +75,21 @@ func (s *service) CheckLibrarian(username string) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (s *service) AddFine(userID string, fine uint32) (uint32, error) {
+	currentTotalFine, err := s.GetTotalFine(userID)
+	if err != nil {
+		return 0, err
+	}
+
+	totalAddedFine := currentTotalFine + fine
+
+	return totalAddedFine, s.userRepository.AddFine(userID, totalAddedFine)
+}
+
+func (s *service) GetTotalFine(userID string) (uint32, error) {
+	return s.userRepository.GetTotalFine(userID)
 }
 
 func newUserID() string {
