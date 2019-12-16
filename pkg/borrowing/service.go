@@ -1,6 +1,7 @@
 package borrowing
 
 import (
+	"errors"
 	"time"
 
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
@@ -18,6 +19,7 @@ type Service interface {
 	Borrow(username string, bookCopyID string) (*Borrow, error)
 	Get(borrowID string) (*Borrow, error)
 	GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*Borrow, error)
+	CheckBorrowed(bookCopyID string) (bool, error)
 	Return(username string, bookCopyID string) (*Borrow, error)
 }
 
@@ -48,6 +50,16 @@ func (s *service) Borrow(username string, bookCopyID string) (*Borrow, error) {
 		return nil, err
 	}
 
+	// Check if the particular Book Copy is being borrowed.
+	isBorrowed, err := s.CheckBorrowed(bookCopyID)
+	if err != nil {
+		return nil, err
+	}
+
+	if isBorrowed {
+		return nil, errors.New("Book " + bookCopyID + "is currently benig borrowed")
+	}
+
 	newBorrow := NewBorrow(newBorrowID(), userID, bookCopyID, 0, time.Now(), time.Now().AddDate(0, 0, 7), time.Time{})
 
 	return s.borrowingRepository.Borrow(newBorrow)
@@ -59,6 +71,10 @@ func (s *service) Get(borrowID string) (*Borrow, error) {
 
 func (s *service) GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*Borrow, error) {
 	return s.borrowingRepository.GetByUserIDAndBookCopyID(userID, bookCopyID)
+}
+
+func (s *service) CheckBorrowed(bookCopyID string) (bool, error) {
+	return s.borrowingRepository.CheckBorrowed(bookCopyID)
 }
 
 func (s *service) Return(username string, bookCopyID string) (*Borrow, error) {

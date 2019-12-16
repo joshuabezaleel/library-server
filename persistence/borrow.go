@@ -50,6 +50,17 @@ func (repo *borrowRepository) GetByUserIDAndBookCopyID(userID string, bookCopyID
 	return &borrow, nil
 }
 
+func (repo *borrowRepository) CheckBorrowed(bookCopyID string) (bool, error) {
+	var isBorrowed bool
+
+	err := repo.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM borrows WHERE bookcopy_id=$1", bookCopyID).Scan(&isBorrowed)
+	if err != nil {
+		return false, err
+	}
+
+	return isBorrowed, nil
+}
+
 func (repo *borrowRepository) Return(borrow *borrowing.Borrow) (*borrowing.Borrow, error) {
 	_, err := repo.DB.NamedExec("UPDATE borrows SET fine=:fine, returned_at=:returned_at WHERE id=:id", borrow)
 	if err != nil {
