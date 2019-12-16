@@ -45,7 +45,7 @@ func main() {
 	userService := user.NewUserService(userRepository)
 	authService := auth.NewAuthService(authRepository, userService)
 	bookService := book.NewBookService(bookRepository)
-	bookCopyService := bookcopy.NewBookCopyService(bookCopyRepository)
+	bookCopyService := bookcopy.NewBookCopyService(bookCopyRepository, bookService)
 	borrowService := borrowing.NewBorrowingService(borrowRepository, userService, bookCopyService)
 
 	srv := server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
