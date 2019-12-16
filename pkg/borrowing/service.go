@@ -3,6 +3,7 @@ package borrowing
 import (
 	"time"
 
+	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
 
 	"github.com/segmentio/ksuid"
@@ -23,20 +24,27 @@ type Service interface {
 type service struct {
 	borrowingRepository Repository
 	userService         user.Service
+	bookCopyService     bookcopy.Service
 }
 
 // NewBorrowingService creates an instance of the service for the Borrowing domain model
 // with all of the necessary dependencies.
-func NewBorrowingService(borrowingRepository Repository, userService user.Service) Service {
+func NewBorrowingService(borrowingRepository Repository, userService user.Service, bookCopyService bookcopy.Service) Service {
 	return &service{
 		borrowingRepository: borrowingRepository,
 		userService:         userService,
+		bookCopyService:     bookCopyService,
 	}
 }
 
 func (s *service) Borrow(username string, bookCopyID string) (*Borrow, error) {
 	userID, err := s.userService.GetUserIDByUsername(username)
 	if err != nil {
+		return nil, err
+	}
+
+	// Check if Book Copy with the particular ID exists.
+	if _, err := s.bookCopyService.Get(bookCopyID); err != nil {
 		return nil, err
 	}
 
