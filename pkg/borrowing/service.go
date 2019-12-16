@@ -88,6 +88,10 @@ func (s *service) Return(username string, bookCopyID string) (*Borrow, error) {
 		return nil, err
 	}
 
+	if userID != borrow.UserID {
+		return nil, errors.New("User mismatch, not the one who borrowed the book")
+	}
+
 	borrow.ReturnedAt = time.Now()
 
 	if borrow.ReturnedAt.After(borrow.DueDate) {
