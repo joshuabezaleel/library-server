@@ -3,6 +3,8 @@ package bookcopy
 import (
 	"time"
 
+	"github.com/joshuabezaleel/library-server/pkg/core/book"
+
 	"github.com/segmentio/ksuid"
 )
 
@@ -19,18 +21,32 @@ type Service interface {
 
 type service struct {
 	bookCopyRepository Repository
+	bookService        book.Service
 }
 
 // NewBookCopyService creates an instance of the service for the BookCopy domain model
 // with all of the necessary dependencies.
-func NewBookCopyService(bookCopyRepository Repository) Service {
+func NewBookCopyService(bookCopyRepository Repository, bookService book.Service) Service {
 	return &service{
 		bookCopyRepository: bookCopyRepository,
+		bookService:        bookService,
 	}
 }
 
 func (s *service) Create(bookCopy *BookCopy) (*BookCopy, error) {
 	newBookCopy := NewBookCopy(newBookCopyID(), bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
+
+	book, err := s.bookService.Get(bookCopy.BookID)
+	if err != nil {
+		return nil, err
+	}
+
+	book.Quantity++
+
+	_, err = s.bookService.Update(book)
+	if err != nil {
+		return nil, err
+	}
 
 	return s.bookCopyRepository.Save(newBookCopy)
 }
