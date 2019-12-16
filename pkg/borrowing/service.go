@@ -52,8 +52,10 @@ func (s *service) Return(userID string, bookCopyID string) (*Borrow, error) {
 
 	borrow.ReturnedAt = time.Now()
 
-	diff := int(borrow.DueDate.Sub(borrow.ReturnedAt).Hours() / 24)
-	borrow.Fine = uint32(diff * finePerDay)
+	if borrow.ReturnedAt.After(borrow.DueDate) {
+		diff := int(borrow.ReturnedAt.Sub(borrow.DueDate).Hours() / 24)
+		borrow.Fine = uint32(diff * finePerDay)
+	}
 
 	return s.borrowingRepository.Return(borrow)
 }

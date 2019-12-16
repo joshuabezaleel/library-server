@@ -10,6 +10,7 @@ import (
 
 	"github.com/joshuabezaleel/library-server/persistence"
 	"github.com/joshuabezaleel/library-server/pkg/auth"
+	"github.com/joshuabezaleel/library-server/pkg/borrowing"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
@@ -38,14 +39,16 @@ func main() {
 	bookRepository := persistence.NewBookRepository(db)
 	bookCopyRepository := persistence.NewBookCopyRepository(db)
 	userRepository := persistence.NewUserRepository(db)
+	borrowRepository := persistence.NewBorrowRepository(db)
 
 	// Setting up domain services.
 	userService := user.NewUserService(userRepository)
 	authService := auth.NewAuthService(authRepository, userService)
 	bookService := book.NewBookService(bookRepository)
 	bookCopyService := bookcopy.NewBookCopyService(bookCopyRepository)
+	borrowService := borrowing.NewBorrowingService(borrowRepository)
 
-	srv := server.NewServer(authService, bookService, bookCopyService, userService)
+	srv := server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
 	fmt.Println("Server is running...")
 
 	err = http.ListenAndServe(serverPort, srv.Router)
