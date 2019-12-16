@@ -46,7 +46,7 @@ func main() {
 	authService := auth.NewAuthService(authRepository, userService)
 	bookService := book.NewBookService(bookRepository)
 	bookCopyService := bookcopy.NewBookCopyService(bookCopyRepository)
-	borrowService := borrowing.NewBorrowingService(borrowRepository)
+	borrowService := borrowing.NewBorrowingService(borrowRepository, userService)
 
 	srv := server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
 	fmt.Println("Server is running...")

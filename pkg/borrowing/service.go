@@ -3,6 +3,8 @@ package borrowing
 import (
 	"time"
 
+	"github.com/joshuabezaleel/library-server/pkg/core/user"
+
 	"github.com/segmentio/ksuid"
 )
 
@@ -20,13 +22,15 @@ type Service interface {
 
 type service struct {
 	borrowingRepository Repository
+	userService         user.Service
 }
 
 // NewBorrowingService creates an instance of the service for the Borrowing domain model
 // with all of the necessary dependencies.
-func NewBorrowingService(borrowingRepository Repository) Service {
+func NewBorrowingService(borrowingRepository Repository, userService user.Service) Service {
 	return &service{
 		borrowingRepository: borrowingRepository,
+		userService:         userService,
 	}
 }
 
@@ -55,6 +59,11 @@ func (s *service) Return(userID string, bookCopyID string) (*Borrow, error) {
 	if borrow.ReturnedAt.After(borrow.DueDate) {
 		diff := int(borrow.ReturnedAt.Sub(borrow.DueDate).Hours() / 24)
 		borrow.Fine = uint32(diff * finePerDay)
+
+		_, err = s.userService.AddFine(userID, borrow.Fine)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return s.borrowingRepository.Return(borrow)
