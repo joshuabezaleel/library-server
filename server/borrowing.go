@@ -5,16 +5,12 @@ import (
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/borrowing"
-	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
-	"github.com/joshuabezaleel/library-server/pkg/core/user"
 
 	"github.com/gorilla/mux"
 )
 
 type borrowingHandler struct {
 	borrowingService borrowing.Service
-	bookCopyService  bookcopy.Service
-	userService      user.Service
 	authService      auth.Service
 }
 
@@ -32,13 +28,8 @@ func (handler *borrowingHandler) borrowBookCopy(w http.ResponseWriter, r *http.R
 	}
 
 	username := r.Context().Value("username").(string)
-	userID, err := handler.userService.GetUserIDByUsername(username)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
 
-	borrow, err := handler.borrowingService.Borrow(userID, bookCopyID)
+	borrow, err := handler.borrowingService.Borrow(username, bookCopyID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -56,13 +47,8 @@ func (handler *borrowingHandler) returnBookCopy(w http.ResponseWriter, r *http.R
 	}
 
 	username := r.Context().Value("username").(string)
-	userID, err := handler.userService.GetUserIDByUsername(username)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
 
-	borrow, err := handler.borrowingService.Return(userID, bookCopyID)
+	borrow, err := handler.borrowingService.Return(username, bookCopyID)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return

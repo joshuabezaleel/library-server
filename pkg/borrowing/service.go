@@ -14,10 +14,10 @@ const (
 
 // Service provides basic operations on Borrowing domain model.
 type Service interface {
-	Borrow(userID string, bookCopyID string) (*Borrow, error)
+	Borrow(username string, bookCopyID string) (*Borrow, error)
 	Get(borrowID string) (*Borrow, error)
 	GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*Borrow, error)
-	Return(userID string, bookCopyID string) (*Borrow, error)
+	Return(username string, bookCopyID string) (*Borrow, error)
 }
 
 type service struct {
@@ -34,7 +34,12 @@ func NewBorrowingService(borrowingRepository Repository, userService user.Servic
 	}
 }
 
-func (s *service) Borrow(userID string, bookCopyID string) (*Borrow, error) {
+func (s *service) Borrow(username string, bookCopyID string) (*Borrow, error) {
+	userID, err := s.userService.GetUserIDByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
 	newBorrow := NewBorrow(newBorrowID(), userID, bookCopyID, 0, time.Now(), time.Now().AddDate(0, 0, 7), time.Time{})
 
 	return s.borrowingRepository.Borrow(newBorrow)
@@ -48,7 +53,12 @@ func (s *service) GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*B
 	return s.borrowingRepository.GetByUserIDAndBookCopyID(userID, bookCopyID)
 }
 
-func (s *service) Return(userID string, bookCopyID string) (*Borrow, error) {
+func (s *service) Return(username string, bookCopyID string) (*Borrow, error) {
+	userID, err := s.userService.GetUserIDByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+
 	borrow, err := s.GetByUserIDAndBookCopyID(userID, bookCopyID)
 	if err != nil {
 		return nil, err
