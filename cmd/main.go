@@ -1,11 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net/http"
-
-	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 
 	"github.com/joshuabezaleel/library-server/persistence"
@@ -17,42 +12,16 @@ import (
 	"github.com/joshuabezaleel/library-server/server"
 )
 
-const (
-	serverPort         = ":8082"
-	connectionHost     = "localhost"
-	connectionPort     = 8081
-	connectionUsername = "postgres"
-	connectionPassword = "postgres"
-	dbName             = "library-server"
-)
-
 func main() {
-	connectionString := fmt.Sprintf("host = %s port=%d user=%s password=%s dbname=%s sslmode=disable", connectionHost, connectionPort, connectionUsername, connectionUsername, dbName)
-	db, err := sqlx.Open("postgres", connectionString)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	// Setting up domain repositories.
-	authRepository := persistence.NewAuthRepository(db)
-	bookRepository := persistence.NewBookRepository(db)
-	bookCopyRepository := persistence.NewBookCopyRepository(db)
-	userRepository := persistence.NewUserRepository(db)
-	borrowRepository := persistence.NewBorrowRepository(db)
+	repository := persistence.NewRepository()
 
 	// Setting up domain services.
-	userService := user.NewUserService(userRepository)
-	authService := auth.NewAuthService(authRepository, userService)
-	bookService := book.NewBookService(bookRepository)
-	bookCopyService := bookcopy.NewBookCopyService(bookCopyRepository, bookService)
-	borrowService := borrowing.NewBorrowingService(borrowRepository, userService, bookCopyService)
+	userService := user.NewUserService(repository.UserRepository)
+	authService := auth.NewAuthService(repository.AuthRepository, userService)
+	bookService := book.NewBookService(repository.BookRepository)
+	bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
+	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
 	srv := server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
-	fmt.Println("Server is running...")
-
-	err = http.ListenAndServe(serverPort, srv.Router)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	srv.Run(":8082")
 }

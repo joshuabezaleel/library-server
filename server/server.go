@@ -1,6 +1,9 @@
 package server
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/borrowing"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
@@ -49,4 +52,14 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 	server.Router = router
 
 	return server
+}
+
+// Run runs the HTTP server with the port and the router.
+func (srv *Server) Run(serverPort string) {
+	log.Println("Server is running")
+
+	err := http.ListenAndServe(serverPort, srv.Router)
+	if err != nil {
+		panic(err)
+	}
 }
