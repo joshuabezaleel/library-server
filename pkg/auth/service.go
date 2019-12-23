@@ -6,7 +6,6 @@ import (
 
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
 
-	// "encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
