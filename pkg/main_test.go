@@ -1,6 +1,9 @@
-package main
+package pkg
 
 import (
+	"os"
+	"testing"
+
 	_ "github.com/lib/pq"
 
 	"github.com/joshuabezaleel/library-server/persistence"
@@ -12,8 +15,8 @@ import (
 	"github.com/joshuabezaleel/library-server/server"
 )
 
-func main() {
-	repository := persistence.NewRepository("production")
+func TestMain(m *testing.M) {
+	repository := persistence.NewRepository("testing")
 
 	// Setting up domain services.
 	userService := user.NewUserService(repository.UserRepository)
@@ -23,5 +26,9 @@ func main() {
 	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
 	srv := server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
-	srv.Run(":8082")
+	srv.Run(":" + os.Getenv("SERVER_PORT"))
+
+	code := m.Run()
+
+	os.Exit(code)
 }

@@ -2,21 +2,18 @@ package persistence
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 
 	"github.com/jmoiron/sqlx"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq" // Importing postgre SQL driver
+
 	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/borrowing"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
-)
-
-const (
-	connectionHost     = "localhost"
-	connectionPort     = 8081
-	connectionUsername = "postgres"
-	connectionPassword = "postgres"
-	dbName             = "library-server"
 )
 
 // Repository holds dependencies for the current persistence layer.
@@ -32,10 +29,23 @@ type Repository struct {
 
 // NewRepository returns a new Repository
 // with all of the necessary dependencies.
-func NewRepository() *Repository {
-	connectionString := fmt.Sprintf("host = %s port=%d user=%s password=%s dbname=%s sslmode=disable", connectionHost, connectionPort, connectionUsername, connectionUsername, dbName)
+func NewRepository(env string) *Repository {
+	err := godotenv.Load("build/.env")
+	if err != nil {
+		panic(err)
+	}
 
-	DB, err := sqlx.Open("postgres", connectionString)
+	var dbName string
+	if env == "testing" {
+		dbName = os.Getenv("DB_NAME")
+	} else if env == "production" {
+		dbName = os.Getenv("DB_TESTING_NAME")
+	}
+
+	dbPort, _ := strconv.Atoi(os.Getenv("DB_PORT"))
+	connectionString := fmt.Sprintf("host = %s port=%d user=%s password=%s dbname=%s sslmode=disable", os.Getenv("DB_HOST"), dbPort, os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), dbName)
+
+	DB, err := sqlx.Open(os.Getenv("DB_DRIVER"), connectionString)
 	if err != nil {
 		panic(err)
 	}
