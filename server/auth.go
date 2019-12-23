@@ -43,7 +43,7 @@ func (handler *authHandler) login(w http.ResponseWriter, r *http.Request) {
 		respondWithError(w, http.StatusUnauthorized, "Password is wrong")
 		return
 	}
-	expirationTime := time.Now().Add(5 * time.Minute).Unix()
+	expirationTime := time.Now().Add(24 * time.Hour).Unix()
 	claims := &auth.Claims{
 		Username: request.Username,
 		StandardClaims: jwt.StandardClaims{
