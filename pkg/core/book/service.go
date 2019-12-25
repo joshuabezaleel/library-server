@@ -30,7 +30,7 @@ func NewBookService(bookRepository Repository) Service {
 }
 
 func (s *service) Create(book *Book) (*Book, error) {
-	newBook := NewBook(newBookID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
+	newBook := NewBook(NewBookID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
 
 	return s.bookRepository.Save(newBook)
 }
@@ -47,6 +47,6 @@ func (s *service) Delete(bookID string) error {
 	return s.bookRepository.Delete(bookID)
 }
 
-func newBookID() string {
+func NewBookID() string {
 	return ksuid.New().String()
 }

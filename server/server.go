@@ -56,10 +56,19 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 
 // Run runs the HTTP server with the port and the router.
 func (srv *Server) Run(serverPort string) {
-	log.Println("Server is running")
+	if serverPort == ":8083" {
+		log.Println("Server for testing is running")
+	} else {
+		log.Println("Server is running")
+	}
 
 	err := http.ListenAndServe(serverPort, srv.Router)
 	if err != nil {
 		panic(err)
 	}
+}
+
+// Stop stops the HTTP server that is currently running.
+func (srv *Server) Stop() {
+
 }

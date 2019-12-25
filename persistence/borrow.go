@@ -53,7 +53,7 @@ func (repo *borrowRepository) GetByUserIDAndBookCopyID(userID string, bookCopyID
 func (repo *borrowRepository) CheckBorrowed(bookCopyID string) (bool, error) {
 	var isBorrowed bool
 
-	err := repo.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM borrows WHERE bookcopy_id=$1", bookCopyID).Scan(&isBorrowed)
+	err := repo.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM borrows WHERE bookcopy_id=$1)", bookCopyID).Scan(&isBorrowed)
 	if err != nil {
 		return false, err
 	}

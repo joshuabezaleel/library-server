@@ -1,5 +1,5 @@
-package book
+package server
 
 // func TestDummy(t *testing.T) {
-// 	// t.Log("TESTING")
+// 	t.Log("TESTING")
 // }

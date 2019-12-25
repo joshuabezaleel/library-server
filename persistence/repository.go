@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" // Importing postgre SQL driver
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
@@ -30,16 +29,16 @@ type Repository struct {
 // NewRepository returns a new Repository
 // with all of the necessary dependencies.
 func NewRepository(env string) *Repository {
-	err := godotenv.Load("build/.env")
-	if err != nil {
-		panic(err)
-	}
+	// err := godotenv.Load("build/.env")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	var dbName string
 	if env == "testing" {
 		dbName = os.Getenv("DB_NAME")
 	} else if env == "production" {
-		dbName = os.Getenv("DB_TESTING_NAME")
+		dbName = os.Getenv("DB_NAME")
 	}
 
 	dbPort, _ := strconv.Atoi(os.Getenv("DB_PORT"))
@@ -49,7 +48,6 @@ func NewRepository(env string) *Repository {
 	if err != nil {
 		panic(err)
 	}
-	defer DB.Close()
 
 	authRepository := NewAuthRepository(DB)
 	bookRepository := NewBookRepository(DB)
