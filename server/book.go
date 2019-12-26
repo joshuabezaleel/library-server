@@ -15,15 +15,26 @@ type bookHandler struct {
 	authService auth.Service
 }
 
-func (handler *bookHandler) registerRouter(router *mux.Router) {
-	// CRUD endpoints.
-	// router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")
-	router.HandleFunc("/books", handler.CreateBook).Methods("POST")
-	router.HandleFunc("/books/{bookID}", handler.getBook).Methods("GET")
-	router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBook))).Methods("PUT")
-	router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBook))).Methods("DELETE")
+func (handler *bookHandler) registerRouter(deployment string, router *mux.Router) {
+	if deployment == "PRODUCTION" {
+		// CRUD endpoints.
+		router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")
+		router.HandleFunc("/books/{bookID}", handler.getBook).Methods("GET")
+		router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBook))).Methods("PUT")
+		router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBook))).Methods("DELETE")
 
-	// Other endpoints.
+		// Other endpoints.
+	} else if deployment == "TESTING" {
+		// CRUD endpoints.
+		// router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")
+		router.HandleFunc("/books", handler.CreateBook).Methods("POST")
+		router.HandleFunc("/books/{bookID}", handler.getBook).Methods("GET")
+		router.HandleFunc("/books/{bookID}", handler.updateBook).Methods("PUT")
+		router.HandleFunc("/books/{bookID}", handler.deleteBook).Methods("DELETE")
+
+		// Other endpoints.
+	}
+
 }
 
 // CreateBook handles the creation of a Book.

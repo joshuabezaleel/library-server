@@ -8,26 +8,48 @@ import (
 	"testing"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
-	"github.com/joshuabezaleel/library-server/pkg/core/book"
+	book "github.com/joshuabezaleel/library-server/pkg/core/book"
 )
 
 func TestCreateBook(t *testing.T) {
-	book := &book.Book{
-		ID:    util.NewID(),
-		Title: "Title for checking",
+	tt := []struct {
+		book         interface{}
+		statusCode   int
+		errorMessage string
+	}{
+		{
+			book: &book.Book{
+				ID: util.NewID(),
+			},
+			statusCode:   201,
+			errorMessage: "",
+		},
+		{
+			book:         "Definitely not a book, just a plain string",
+			statusCode:   400,
+			errorMessage: "",
+		},
+		{
+			book:         &book.Book{},
+			statusCode:   500,
+			errorMessage: "",
+		},
 	}
-	jsonReq, _ := json.Marshal(book)
 
-	req, err := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-	if err != nil {
-		t.Fatal(err)
-	}
+	for _, tc := range tt {
+		jsonReq, _ := json.Marshal(tc.book)
 
-	rr := httptest.NewRecorder()
-	srv.Router.ServeHTTP(rr, req)
+		req, err := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
+		if err != nil {
+			t.Errorf("Cannot perform HTTP request: %v", err)
+		}
 
-	if rr.Code != http.StatusCreated {
-		t.Errorf("rec.Code = %d; want = %d", rr.Code, http.StatusCreated)
+		rr := httptest.NewRecorder()
+		srv.Router.ServeHTTP(rr, req)
+
+		if rr.Code != tc.statusCode {
+			t.Errorf("rec.Code = %d; want = %d", rr.Code, tc.statusCode)
+		}
 	}
 
 	repository.CleanUp()

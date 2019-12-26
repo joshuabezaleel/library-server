@@ -26,7 +26,7 @@ type Server struct {
 
 // NewServer returns a new HTTP server
 // with all of the necessary dependencies.
-func NewServer(authService auth.Service, bookService book.Service, bookCopyService bookcopy.Service, userService user.Service, borrowService borrowing.Service) *Server {
+func NewServer(deployment string, authService auth.Service, bookService book.Service, bookCopyService bookcopy.Service, userService user.Service, borrowService borrowing.Service) *Server {
 	server := &Server{
 		authService:     authService,
 		bookService:     bookService,
@@ -44,10 +44,10 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 	router := mux.NewRouter()
 
 	authHandler.registerRouter(router)
-	bookHandler.registerRouter(router)
-	bookCopyHandler.registerRouter(router)
-	userHandler.registerRouter(router)
-	borrowHandler.registerRouter(router)
+	bookHandler.registerRouter(deployment, router)
+	bookCopyHandler.registerRouter(deployment, router)
+	userHandler.registerRouter(deployment, router)
+	borrowHandler.registerRouter(deployment, router)
 
 	server.Router = router
 

@@ -15,14 +15,25 @@ type bookCopyHandler struct {
 	authService     auth.Service
 }
 
-func (handler *bookCopyHandler) registerRouter(router *mux.Router) {
-	// CRUD endpoints.
-	router.HandleFunc("/books/{bookID}/bookcopies", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.createBookCopy))).Methods("POST")
-	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.getBookCopy).Methods("GET")
-	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBookCopy))).Methods("PUT")
-	router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBookCopy))).Methods("DELETE")
+func (handler *bookCopyHandler) registerRouter(deployment string, router *mux.Router) {
+	if deployment == "PRODUCTION" {
+		// CRUD endpoints.
+		router.HandleFunc("/books/{bookID}/bookcopies", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.createBookCopy))).Methods("POST")
+		router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.getBookCopy).Methods("GET")
+		router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBookCopy))).Methods("PUT")
+		router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBookCopy))).Methods("DELETE")
 
-	// Other endpoints.
+		// Other endpoints.
+	} else if deployment == "TESTING" {
+		// CRUD endpoints.
+		router.HandleFunc("/books/{bookID}/bookcopies", handler.createBookCopy).Methods("POST")
+		router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.getBookCopy).Methods("GET")
+		router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.updateBookCopy).Methods("PUT")
+		router.HandleFunc("/books/{bookID}/bookcopies/{bookCopyID}", handler.deleteBookCopy).Methods("DELETE")
+
+		// Other endpoints.
+	}
+
 }
 
 func (handler *bookCopyHandler) createBookCopy(w http.ResponseWriter, r *http.Request) {

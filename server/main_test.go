@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 	bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
 	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
-	srv = NewServer(authService, bookService, bookCopyService, userService, borrowService)
+	srv = NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
 	// srv.Router.SkipClean(true)
 	go srv.Run(":" + os.Getenv("SERVER_PORT"))
 
