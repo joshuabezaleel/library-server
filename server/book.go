@@ -10,14 +10,15 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type bookHandler struct {
+// BookHandler comment
+type BookHandler struct {
 	bookService book.Service
 	authService auth.Service
 }
 
-func (handler *bookHandler) registerRouter(router *mux.Router) {
+func (handler *BookHandler) registerRouter(router *mux.Router) {
 	// CRUD endpoints.
-	router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.createBook))).Methods("POST")
+	router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")
 	router.HandleFunc("/books/{bookID}", handler.getBook).Methods("GET")
 	router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBook))).Methods("PUT")
 	router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBook))).Methods("DELETE")
@@ -25,7 +26,8 @@ func (handler *bookHandler) registerRouter(router *mux.Router) {
 	// Other endpoints.
 }
 
-func (handler *bookHandler) createBook(w http.ResponseWriter, r *http.Request) {
+// CreateBook handles the creation of a Book.
+func (handler *BookHandler) CreateBook(w http.ResponseWriter, r *http.Request) {
 	book := book.Book{}
 
 	err := json.NewDecoder(r.Body).Decode(&book)
@@ -44,7 +46,7 @@ func (handler *bookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, newBook)
 }
 
-func (handler *bookHandler) getBook(w http.ResponseWriter, r *http.Request) {
+func (handler *BookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {
@@ -61,7 +63,7 @@ func (handler *bookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, book)
 }
 
-func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
+func (handler *BookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	book := book.Book{}
 
 	err := json.NewDecoder(r.Body).Decode(&book)
@@ -88,7 +90,7 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, updatedBook)
 }
 
-func (handler *bookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
+func (handler *BookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {

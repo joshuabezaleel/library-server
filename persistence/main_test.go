@@ -15,10 +15,9 @@ func TestMain(m *testing.M) {
 		panic(err)
 	}
 	repository = NewRepository("testing")
+	defer repository.DB.Close()
 
 	code := m.Run()
-
-	repository.DB.Close()
 
 	os.Exit(code)
 }

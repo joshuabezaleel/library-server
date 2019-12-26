@@ -36,7 +36,7 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 	}
 
 	authHandler := authHandler{authService}
-	bookHandler := bookHandler{bookService, authService}
+	bookHandler := BookHandler{bookService, authService}
 	bookCopyHandler := bookCopyHandler{bookCopyService, authService}
 	userHandler := userHandler{userService, authService}
 	borrowHandler := borrowingHandler{borrowService, authService}
