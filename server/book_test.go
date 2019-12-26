@@ -3,6 +3,8 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -55,4 +57,52 @@ func TestCreateBook(t *testing.T) {
 	repository.CleanUp()
 }
 func TestGetBook(t *testing.T) {
+	book := &book.Book{
+		ID: util.NewID(),
+	}
+	jsonReq, _ := json.Marshal(book)
+	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
+	rr := httptest.NewRecorder()
+	srv.Router.ServeHTTP(rr, req)
+
+	log.Println(book.ID)
+	log.Println(rr.Code)
+
+	tt := []struct {
+		path         string
+		statusCode   int
+		errorMessage string
+	}{
+		{
+			path:         "/" + book.ID,
+			statusCode:   200,
+			errorMessage: "",
+		},
+		{
+			path:         "/randomurlquery",
+			statusCode:   500,
+			errorMessage: "",
+		},
+	}
+
+	for _, tc := range tt {
+		// jsonReq, _ := json.Marshal(tc.book)
+		url := fmt.Sprintf("/books%s", tc.path)
+
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			t.Errorf("Cannot perform HTTP request: %v", err)
+		}
+		log.Println(req)
+
+		rr := httptest.NewRecorder()
+		srv.Router.ServeHTTP(rr, req)
+
+		if rr.Code != tc.statusCode {
+			t.Errorf("rec.Code = %d; want = %d", rr.Code, tc.statusCode)
+		}
+		log.Println(rr.Body)
+	}
+
+	repository.CleanUp()
 }
