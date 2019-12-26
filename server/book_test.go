@@ -14,11 +14,11 @@ import (
 func TestCreateBook(t *testing.T) {
 	book := &book.Book{
 		ID:    util.NewID(),
-		Title: "title",
+		Title: "Title for checking",
 	}
 	jsonReq, _ := json.Marshal(book)
 
-	req, err := http.NewRequest("POST", "localhost:8082/books", bytes.NewBuffer(jsonReq))
+	req, err := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,9 +29,8 @@ func TestCreateBook(t *testing.T) {
 	if rr.Code != http.StatusCreated {
 		t.Errorf("rec.Code = %d; want = %d", rr.Code, http.StatusCreated)
 	}
-	// srv.Router.c
-	// testingSrv.Router.ServeHTTP(rr, req)
-	// t.Log("test")
+
+	repository.CleanUp()
 }
 func TestGetBook(t *testing.T) {
 }

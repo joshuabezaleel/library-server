@@ -14,8 +14,12 @@ import (
 	"github.com/joshuabezaleel/library-server/server"
 )
 
+const (
+	deployment string = "PRODUCTION"
+)
+
 func main() {
-	repository := persistence.NewRepository("production")
+	repository := persistence.NewRepository(deployment)
 
 	// Setting up domain services.
 	userService := user.NewUserService(repository.UserRepository)

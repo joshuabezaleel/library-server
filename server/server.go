@@ -1,7 +1,7 @@
 package server
 
 import (
-	"log"
+	"fmt"
 	"net/http"
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
@@ -36,7 +36,7 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 	}
 
 	authHandler := authHandler{authService}
-	bookHandler := BookHandler{bookService, authService}
+	bookHandler := bookHandler{bookService, authService}
 	bookCopyHandler := bookCopyHandler{bookCopyService, authService}
 	userHandler := userHandler{userService, authService}
 	borrowHandler := borrowingHandler{borrowService, authService}
@@ -57,9 +57,9 @@ func NewServer(authService auth.Service, bookService book.Service, bookCopyServi
 // Run runs the HTTP server with the port and the router.
 func (srv *Server) Run(serverPort string) {
 	if serverPort == ":8083" {
-		log.Println("Server for testing is running")
+		fmt.Println("Server for testing is running")
 	} else {
-		log.Println("Server is running")
+		fmt.Println("Server is running")
 	}
 
 	err := http.ListenAndServe(serverPort, srv.Router)

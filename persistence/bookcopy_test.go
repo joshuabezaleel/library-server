@@ -18,6 +18,8 @@ func TestBookCopySave(t *testing.T) {
 	// Happy path.
 	require.Nil(t, err)
 	require.Equal(t, bookCopy.ID, bookCopy1.ID)
+
+	repository.CleanUp()
 }
 
 func TestBookCopyGet(t *testing.T) {
@@ -36,6 +38,8 @@ func TestBookCopyGet(t *testing.T) {
 	// Get invalid BookCopy.
 	_, err = repository.BookCopyRepository.Get(util.NewID())
 	require.NotNil(t, err)
+
+	repository.CleanUp()
 }
 
 func TestBookCopyUpdate(t *testing.T) {
@@ -53,6 +57,8 @@ func TestBookCopyUpdate(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, bookCopy1.ID, bookCopy2.ID)
 	require.Equal(t, bookCopy2.Condition, "bad")
+
+	repository.CleanUp()
 }
 
 func TestBookCopyDelete(t *testing.T) {
@@ -70,4 +76,6 @@ func TestBookCopyDelete(t *testing.T) {
 	// Unable to retrieve the BookCopy that was just deleted.
 	_, err = repository.BookCopyRepository.Get(bookCopy.ID)
 	require.NotNil(t, err)
+
+	repository.CleanUp()
 }

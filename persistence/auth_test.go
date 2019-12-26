@@ -23,4 +23,6 @@ func TestGetPassword(t *testing.T) {
 	password, err := repository.AuthRepository.GetPassword(user.Username)
 	require.Nil(t, err)
 	require.Equal(t, password, user1.Password)
+
+	repository.CleanUp()
 }

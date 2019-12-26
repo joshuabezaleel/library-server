@@ -14,16 +14,23 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
 )
 
-// var repository *Repository
+var repository *persistence.Repository
 var srv *Server
+
+const (
+	deployment string = "TESTING"
+)
 
 func TestMain(m *testing.M) {
 	err := godotenv.Load("../build/.env")
 	if err != nil {
 		panic(err)
 	}
-	repository := persistence.NewRepository("testing")
+	repository = persistence.NewRepository(deployment)
 	defer repository.DB.Close()
+
+	// repository.EnsureDatabaseExists()
+	repository.EnsureTableExists()
 
 	// Setting up domain services.
 	userService := user.NewUserService(repository.UserRepository)
@@ -37,6 +44,8 @@ func TestMain(m *testing.M) {
 	go srv.Run(":" + os.Getenv("SERVER_PORT"))
 
 	code := m.Run()
+
+	repository.CleanUp()
 
 	os.Exit(code)
 }

@@ -7,6 +7,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const (
+	deployment = "TESTING"
+)
+
 var repository *Repository
 
 func TestMain(m *testing.M) {
@@ -14,10 +18,15 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		panic(err)
 	}
-	repository = NewRepository("testing")
+	repository = NewRepository(deployment)
 	defer repository.DB.Close()
 
+	// repository.EnsureDatabaseExists()
+	repository.EnsureTableExists()
+
 	code := m.Run()
+
+	repository.CleanUp()
 
 	os.Exit(code)
 }

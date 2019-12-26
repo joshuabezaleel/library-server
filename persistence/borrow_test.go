@@ -19,6 +19,8 @@ func TestBorrow(t *testing.T) {
 	// Happy path.
 	require.Nil(t, err)
 	require.Equal(t, borrow.ID, borrow1.ID)
+
+	repository.CleanUp()
 }
 
 func TestBorrowGetByID(t *testing.T) {
@@ -37,6 +39,8 @@ func TestBorrowGetByID(t *testing.T) {
 	// Get invalid Borrow.
 	_, err = repository.BorrowRepository.Get(util.NewID())
 	require.NotNil(t, err)
+
+	repository.CleanUp()
 }
 
 func TestBorrowGetByUserIDAndBookCopyID(t *testing.T) {
@@ -57,6 +61,8 @@ func TestBorrowGetByUserIDAndBookCopyID(t *testing.T) {
 	// Get invalid Borrow.
 	_, err = repository.BorrowRepository.GetByUserIDAndBookCopyID(util.NewID(), util.NewID())
 	require.NotNil(t, err)
+
+	repository.CleanUp()
 }
 
 func TestCheckBorrowed(t *testing.T) {
@@ -79,6 +85,8 @@ func TestCheckBorrowed(t *testing.T) {
 	borrowed1, err := repository.BorrowRepository.CheckBorrowed(util.NewID())
 	require.Nil(t, err)
 	require.False(t, borrowed1)
+
+	repository.CleanUp()
 }
 
 func TestReturn(t *testing.T) {
@@ -94,4 +102,6 @@ func TestReturn(t *testing.T) {
 	returnedBorrow, err := repository.BorrowRepository.Return(borrow1)
 	require.Nil(t, err)
 	require.Equal(t, returnedBorrow.ID, borrow.ID)
+
+	repository.CleanUp()
 }

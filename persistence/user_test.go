@@ -19,6 +19,8 @@ func TestUserSave(t *testing.T) {
 	// Happy path.
 	require.Nil(t, err)
 	require.Equal(t, user1.ID, user.ID)
+
+	repository.CleanUp()
 }
 
 func TestUserGet(t *testing.T) {
@@ -37,6 +39,8 @@ func TestUserGet(t *testing.T) {
 	// Get invalid User.
 	_, err = repository.UserRepository.Get(util.NewID())
 	require.NotNil(t, err)
+
+	repository.CleanUp()
 }
 
 func TestUserUpdate(t *testing.T) {
@@ -54,6 +58,8 @@ func TestUserUpdate(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, user1.ID, user2.ID)
 	require.Equal(t, user.Username, "edited username")
+
+	repository.CleanUp()
 }
 
 func TestUserDelete(t *testing.T) {
@@ -71,13 +77,15 @@ func TestUserDelete(t *testing.T) {
 	// Unable to retrieve the User that was just deleted.
 	_, err = repository.UserRepository.Get(user.ID)
 	require.NotNil(t, err)
+
+	repository.CleanUp()
 }
 
 func TestUserGetIDByUsername(t *testing.T) {
 	// Create a new User and save it.
 	user := &user.User{
 		ID:       util.NewID(),
-		Username: "usernamefortesting4",
+		Username: "username",
 	}
 	_, err := repository.UserRepository.Save(user)
 	require.Nil(t, err)
@@ -86,6 +94,8 @@ func TestUserGetIDByUsername(t *testing.T) {
 	user2ID, err := repository.UserRepository.GetIDByUsername(user.Username)
 	require.Nil(t, err)
 	require.Equal(t, user2ID, user.ID)
+
+	repository.CleanUp()
 }
 
 func TestUserCheckLibrarian(t *testing.T) {
@@ -101,6 +111,8 @@ func TestUserCheckLibrarian(t *testing.T) {
 	role, err := repository.UserRepository.CheckLibrarian(user1.ID)
 	require.Nil(t, err)
 	require.Equal(t, role, "librarian")
+
+	repository.CleanUp()
 }
 
 func TestUserAddFine(t *testing.T) {
@@ -121,6 +133,8 @@ func TestUserAddFine(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, user2.ID, user1.ID)
 	require.Equal(t, user2.TotalFine, fine)
+
+	repository.CleanUp()
 }
 
 func TestUserGetTotalFine(t *testing.T) {
