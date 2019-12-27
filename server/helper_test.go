@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
-
 	util "github.com/joshuabezaleel/library-server/pkg"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
+	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
+	"github.com/joshuabezaleel/library-server/pkg/core/user"
 )
 
 func createBook() *book.Book {
@@ -49,4 +49,18 @@ func createBookCopy() *bookcopy.BookCopy {
 	srv.Router.ServeHTTP(rr, req)
 
 	return initialBookCopy
+}
+
+func createUser() *user.User {
+	initialUser := &user.User{
+		ID:       util.NewID(),
+		Username: "initial username",
+	}
+
+	jsonReq, _ := json.Marshal(initialUser)
+	req, _ := http.NewRequest("POST", "/users", bytes.NewBuffer(jsonReq))
+	rr := httptest.NewRecorder()
+	srv.Router.ServeHTTP(rr, req)
+
+	return initialUser
 }
