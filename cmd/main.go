@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	_ "github.com/lib/pq"
 
 	"github.com/joshuabezaleel/library-server/persistence"
@@ -29,7 +27,7 @@ func main() {
 	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
 	srv := server.NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
-	srv.Run(":" + os.Getenv("SERVER_PORT"))
+	srv.Run(deployment)
 
 	repository.DB.Close()
 }

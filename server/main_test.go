@@ -18,7 +18,7 @@ var repository *persistence.Repository
 var srv *Server
 
 const (
-	deployment string = "TESTING"
+	deployment = "TESTING"
 )
 
 func TestMain(m *testing.M) {
@@ -41,7 +41,7 @@ func TestMain(m *testing.M) {
 
 	srv = NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
 	// srv.Router.SkipClean(true)
-	go srv.Run(":" + os.Getenv("SERVER_PORT"))
+	go srv.Run(deployment)
 
 	code := m.Run()
 

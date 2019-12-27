@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/borrowing"
@@ -55,14 +56,17 @@ func NewServer(deployment string, authService auth.Service, bookService book.Ser
 }
 
 // Run runs the HTTP server with the port and the router.
-func (srv *Server) Run(serverPort string) {
-	if serverPort == ":8083" {
-		fmt.Println("Server for testing is running")
-	} else {
-		fmt.Println("Server is running")
+func (srv *Server) Run(deployment string) {
+	var port string
+	if deployment == "PRODUCTION" {
+		port = ":" + os.Getenv("SERVER_PORT")
+		fmt.Println("Server is running ...")
+	} else if deployment == "TESTING" {
+		port = ":" + os.Getenv("SERVER_TESTING_PORT")
+		fmt.Println("Server for testing is running ...")
 	}
 
-	err := http.ListenAndServe(serverPort, srv.Router)
+	err := http.ListenAndServe(port, srv.Router)
 	if err != nil {
 		panic(err)
 	}

@@ -58,8 +58,10 @@ func TestCreateBook(t *testing.T) {
 }
 func TestGetBook(t *testing.T) {
 	book := &book.Book{
-		ID: util.NewID(),
+		ID:    util.NewID(),
+		Title: "TITLE WOOOOOI 2",
 	}
+	log.Printf("BOOK ID = %v", book.ID)
 	jsonReq, _ := json.Marshal(book)
 	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
 	rr := httptest.NewRecorder()
@@ -79,7 +81,7 @@ func TestGetBook(t *testing.T) {
 			errorMessage: "",
 		},
 		{
-			path:         "/randomurlquery",
+			path:         "/" + util.NewID(),
 			statusCode:   500,
 			errorMessage: "",
 		},
@@ -104,5 +106,5 @@ func TestGetBook(t *testing.T) {
 		log.Println(rr.Body)
 	}
 
-	repository.CleanUp()
+	// repository.CleanUp()
 }
