@@ -39,8 +39,10 @@ func TestCreateBook(t *testing.T) {
 			errorMessage: "",
 		},
 		{
-			name:         "book request is not complete",
-			book:         &book.Book{},
+			name: "made a book with same id (?), bad example though",
+			book: &book.Book{
+				ID: initialBook.ID,
+			},
 			statusCode:   500,
 			errorMessage: "",
 		},

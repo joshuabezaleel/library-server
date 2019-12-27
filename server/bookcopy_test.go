@@ -155,163 +155,148 @@ func TestGetBookCopy(t *testing.T) {
 		})
 	}
 
-	// repository.CleanUp()
+	repository.CleanUp()
 }
 
-// func TestUpdateBookCopy(t *testing.T) {
-// 	initialBook := &book.Book{
-// 		ID:    util.NewID(),
-// 		Title: "initial title",
-// 	}
+func TestUpdateBookCopy(t *testing.T) {
+	initialBookCopy := createBookCopy()
 
-// 	jsonReq, _ := json.Marshal(initialBook)
-// 	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-// 	rr := httptest.NewRecorder()
-// 	srv.Router.ServeHTTP(rr, req)
+	tt := []struct {
+		name         string
+		path         string
+		bookCopy     interface{}
+		condition    string
+		statusCode   int
+		errorMessage string
+	}{
+		{
+			name: "success updating a valid book copy",
+			path: initialBookCopy.ID,
+			bookCopy: &bookcopy.BookCopy{
+				Condition: "revised condition",
+			},
+			condition:    "revised condition",
+			statusCode:   200,
+			errorMessage: "",
+		},
+		{
+			name:         "request payload is not a book copy",
+			path:         initialBookCopy.ID,
+			bookCopy:     "definitely not a book copy, just a plain string",
+			statusCode:   400,
+			errorMessage: "",
+		},
+		{
+			name: "invalid book copy id path",
+			path: util.NewID(),
+			bookCopy: &bookcopy.BookCopy{
+				Condition: "revised condition",
+			},
+			statusCode:   500,
+			errorMessage: "",
+		},
+	}
 
-// 	tt := []struct {
-// 		name         string
-// 		path         string
-// 		book         interface{}
-// 		title        string
-// 		statusCode   int
-// 		errorMessage string
-// 	}{
-// 		{
-// 			name: "success updating a valid book",
-// 			path: "/" + initialBook.ID,
-// 			book: &book.Book{
-// 				Title: "edited title",
-// 			},
-// 			title:        "edited title",
-// 			statusCode:   200,
-// 			errorMessage: "",
-// 		},
-// 		{
-// 			name:         "request payload is not a book",
-// 			path:         "/" + initialBook.ID,
-// 			book:         "definitely not a book, just a plain string",
-// 			statusCode:   400,
-// 			errorMessage: "",
-// 		},
-// 		{
-// 			name: "invalid book id path",
-// 			path: "/" + util.NewID(),
-// 			book: &book.Book{
-// 				Title: "edited title",
-// 			},
-// 			statusCode:   500,
-// 			errorMessage: "",
-// 		},
-// 	}
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			jsonReq, _ := json.Marshal(tc.bookCopy)
+			url := fmt.Sprintf("/books/" + initialBookCopy.BookID + "/bookcopies/" + tc.path)
 
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			jsonReq, _ := json.Marshal(tc.book)
-// 			url := fmt.Sprintf("/books" + tc.path)
+			req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonReq))
+			if err != nil {
+				t.Errorf("Cannot perform HTTP request: %v", err)
+			}
 
-// 			req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonReq))
-// 			if err != nil {
-// 				t.Errorf("Cannot perform HTTP request: %v", err)
-// 			}
+			rr := httptest.NewRecorder()
+			srv.Router.ServeHTTP(rr, req)
 
-// 			rr := httptest.NewRecorder()
-// 			srv.Router.ServeHTTP(rr, req)
+			resp := rr.Result()
+			defer resp.Body.Close()
 
-// 			resp := rr.Result()
-// 			defer resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				if resp.StatusCode != tc.statusCode {
+					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
+				}
+				return
+			}
 
-// 			if resp.StatusCode != http.StatusOK {
-// 				if resp.StatusCode != tc.statusCode {
-// 					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-// 				}
-// 				return
-// 			}
+			body, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatalf("could not read response: %v", err)
+			}
 
-// 			body, err := ioutil.ReadAll(resp.Body)
-// 			if err != nil {
-// 				t.Fatalf("could not read response: %v", err)
-// 			}
+			updatedBookCopy := bookcopy.BookCopy{}
+			err = json.Unmarshal(body, &updatedBookCopy)
+			if err != nil {
+				t.Fatalf("expected a Book Copy struct; got %s", body)
+			}
 
-// 			updatedBook := book.Book{}
-// 			err = json.Unmarshal(body, &updatedBook)
-// 			if err != nil {
-// 				t.Fatalf("expected a Book struct; got %s", body)
-// 			}
+			if updatedBookCopy.Condition != tc.condition {
+				t.Errorf("expected condition to be %v; got %v", tc.condition, updatedBookCopy.Condition)
+			}
+		})
+	}
 
-// 			if updatedBook.Title != tc.title {
-// 				t.Errorf("expected title to be %v; got %v", tc.title, updatedBook.Title)
-// 			}
-// 		})
-// 	}
+	repository.CleanUp()
+}
 
-// 	repository.CleanUp()
-// }
+func TestDeleteBookCopy(t *testing.T) {
+	initialBookCopy := createBookCopy()
 
-// func TestDeleteBookCopy(t *testing.T) {
-// 	initialBook := &book.Book{
-// 		ID: util.NewID(),
-// 	}
+	tt := []struct {
+		name         string
+		path         string
+		statusCode   int
+		errorMessage string
+	}{
+		{
+			name:         "success deleting a valid book copy",
+			path:         initialBookCopy.ID,
+			statusCode:   200,
+			errorMessage: "",
+		},
+		{
+			name:         "invalid book copy id path",
+			path:         util.NewID(),
+			statusCode:   500,
+			errorMessage: "",
+		},
+	}
 
-// 	jsonReq, _ := json.Marshal(initialBook)
-// 	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-// 	rr := httptest.NewRecorder()
-// 	srv.Router.ServeHTTP(rr, req)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			url := fmt.Sprintf("/books/" + initialBookCopy.BookID + "/bookcopies/" + tc.path)
 
-// 	tt := []struct {
-// 		name         string
-// 		path         string
-// 		statusCode   int
-// 		errorMessage string
-// 	}{
-// 		{
-// 			name:         "success deleting a valid book",
-// 			path:         "/" + initialBook.ID,
-// 			statusCode:   200,
-// 			errorMessage: "",
-// 		},
-// 		{
-// 			name:         "invalid book id path",
-// 			path:         "/" + util.NewID(),
-// 			statusCode:   500,
-// 			errorMessage: "",
-// 		},
-// 	}
+			req, err := http.NewRequest("DELETE", url, nil)
+			if err != nil {
+				t.Errorf("Cannot perform HTTP request: %v", err)
+			}
 
-// 	for _, tc := range tt {
-// 		t.Run(tc.name, func(t *testing.T) {
-// 			url := fmt.Sprintf("/books" + tc.path)
+			rr := httptest.NewRecorder()
+			srv.Router.ServeHTTP(rr, req)
 
-// 			req, err := http.NewRequest("DELETE", url, nil)
-// 			if err != nil {
-// 				t.Errorf("Cannot perform HTTP request: %v", err)
-// 			}
+			resp := rr.Result()
+			defer resp.Body.Close()
 
-// 			rr := httptest.NewRecorder()
-// 			srv.Router.ServeHTTP(rr, req)
+			if resp.StatusCode != http.StatusOK {
+				if resp.StatusCode != tc.statusCode {
+					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
+				}
+				return
+			}
 
-// 			resp := rr.Result()
-// 			defer resp.Body.Close()
+			// body, err := ioutil.ReadAll(resp.Body)
+			// if err != nil {
+			// 	t.Fatalf("could not read response: %v", err)
+			// }
 
-// 			if resp.StatusCode != http.StatusOK {
-// 				if resp.StatusCode != tc.statusCode {
-// 					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-// 				}
-// 				return
-// 			}
+			// msg := string(body)
+			// if msg :=
+			// if initialBook.ID != newBook.ID {
+			// 	t.Fatalf("expected id %v; got %v", initialBook.ID, newBook.ID)
+			// }
+		})
+	}
 
-// 			// body, err := ioutil.ReadAll(resp.Body)
-// 			// if err != nil {
-// 			// 	t.Fatalf("could not read response: %v", err)
-// 			// }
-
-// 			// msg := string(body)
-// 			// if msg :=
-// 			// if initialBook.ID != newBook.ID {
-// 			// 	t.Fatalf("expected id %v; got %v", initialBook.ID, newBook.ID)
-// 			// }
-// 		})
-// 	}
-
-// 	repository.CleanUp()
-// }
+	repository.CleanUp()
+}

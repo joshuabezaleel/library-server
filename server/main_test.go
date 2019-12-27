@@ -45,7 +45,7 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
-	// repository.CleanUp()
+	repository.CleanUp()
 
 	os.Exit(code)
 }
