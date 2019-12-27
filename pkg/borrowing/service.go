@@ -4,10 +4,9 @@ import (
 	"errors"
 	"time"
 
+	util "github.com/joshuabezaleel/library-server/pkg"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
-
-	"github.com/segmentio/ksuid"
 )
 
 const (
@@ -57,10 +56,10 @@ func (s *service) Borrow(username string, bookCopyID string) (*Borrow, error) {
 	}
 
 	if isBorrowed {
-		return nil, errors.New("Book " + bookCopyID + "is currently benig borrowed")
+		return nil, errors.New("Book " + bookCopyID + "is currently being borrowed")
 	}
 
-	newBorrow := NewBorrow(newBorrowID(), userID, bookCopyID, 0, time.Now(), time.Now().AddDate(0, 0, 7), time.Time{})
+	newBorrow := NewBorrow(util.NewID(), userID, bookCopyID, 0, time.Now(), time.Now().AddDate(0, 0, 7), time.Time{})
 
 	return s.borrowingRepository.Borrow(newBorrow)
 }
@@ -105,8 +104,4 @@ func (s *service) Return(username string, bookCopyID string) (*Borrow, error) {
 	}
 
 	return s.borrowingRepository.Return(borrow)
-}
-
-func newBorrowID() string {
-	return ksuid.New().String()
 }

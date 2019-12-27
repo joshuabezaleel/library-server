@@ -6,6 +6,8 @@ import (
 
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
+
+	util "github.com/joshuabezaleel/library-server/pkg"
 )
 
 // Service provides basic operations on User domain model.
@@ -36,7 +38,13 @@ func NewUserService(userRepository Repository) Service {
 }
 
 func (s *service) Create(user *User) (*User, error) {
-	newUser := NewUser(newUserID(), user.StudentID, user.Role, user.Username, user.Email, hashAndSalt([]byte(user.Password)), user.TotalFine, time.Now())
+	var newUser *User
+
+	if user.ID == "" {
+		newUser = NewUser(util.NewID(), user.StudentID, user.Role, user.Username, user.Email, hashAndSalt([]byte(user.Password)), user.TotalFine, time.Now())
+	} else {
+		newUser = NewUser(user.ID, user.StudentID, user.Role, user.Username, user.Email, hashAndSalt([]byte(user.Password)), user.TotalFine, time.Now())
+	}
 
 	return s.userRepository.Save(newUser)
 }

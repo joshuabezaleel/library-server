@@ -88,15 +88,9 @@ func TestCreateBook(t *testing.T) {
 
 	repository.CleanUp()
 }
-func TestGetBook(t *testing.T) {
-	initialBook := &book.Book{
-		ID: util.NewID(),
-	}
 
-	jsonReq, _ := json.Marshal(initialBook)
-	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-	rr := httptest.NewRecorder()
-	srv.Router.ServeHTTP(rr, req)
+func TestGetBook(t *testing.T) {
+	initialBook := createBook()
 
 	tt := []struct {
 		name         string
@@ -161,15 +155,7 @@ func TestGetBook(t *testing.T) {
 }
 
 func TestUpdateBook(t *testing.T) {
-	initialBook := &book.Book{
-		ID:    util.NewID(),
-		Title: "initial title",
-	}
-
-	jsonReq, _ := json.Marshal(initialBook)
-	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-	rr := httptest.NewRecorder()
-	srv.Router.ServeHTTP(rr, req)
+	initialBook := createBook()
 
 	tt := []struct {
 		name         string
@@ -251,14 +237,7 @@ func TestUpdateBook(t *testing.T) {
 }
 
 func TestDeleteBook(t *testing.T) {
-	initialBook := &book.Book{
-		ID: util.NewID(),
-	}
-
-	jsonReq, _ := json.Marshal(initialBook)
-	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-	rr := httptest.NewRecorder()
-	srv.Router.ServeHTTP(rr, req)
+	initialBook := createBook()
 
 	tt := []struct {
 		name         string

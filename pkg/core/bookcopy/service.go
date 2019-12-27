@@ -3,9 +3,8 @@ package bookcopy
 import (
 	"time"
 
+	util "github.com/joshuabezaleel/library-server/pkg"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
-
-	"github.com/segmentio/ksuid"
 )
 
 // Service provides basic operations on BookCopy domain model.
@@ -34,7 +33,13 @@ func NewBookCopyService(bookCopyRepository Repository, bookService book.Service)
 }
 
 func (s *service) Create(bookCopy *BookCopy) (*BookCopy, error) {
-	newBookCopy := NewBookCopy(newBookCopyID(), bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
+	var newBookCopy *BookCopy
+
+	if bookCopy.ID == "" {
+		newBookCopy = NewBookCopy(util.NewID(), bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
+	} else {
+		newBookCopy = NewBookCopy(bookCopy.ID, bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
+	}
 
 	book, err := s.bookService.Get(bookCopy.BookID)
 	if err != nil {
@@ -61,8 +66,4 @@ func (s *service) Update(bookCopy *BookCopy) (*BookCopy, error) {
 
 func (s *service) Delete(bookCopyID string) error {
 	return s.bookCopyRepository.Delete(bookCopyID)
-}
-
-func newBookCopyID() string {
-	return ksuid.New().String()
 }
