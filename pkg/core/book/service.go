@@ -3,7 +3,7 @@ package book
 import (
 	"time"
 
-	"github.com/segmentio/ksuid"
+	util "github.com/joshuabezaleel/library-server/pkg"
 )
 
 // Service provides basic operations on Book domain model.
@@ -30,7 +30,13 @@ func NewBookService(bookRepository Repository) Service {
 }
 
 func (s *service) Create(book *Book) (*Book, error) {
-	newBook := NewBook(NewBookID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
+	var newBook *Book
+
+	if book.ID == "" {
+		newBook = NewBook(util.NewID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
+	} else {
+		newBook = NewBook(book.ID, book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
+	}
 
 	return s.bookRepository.Save(newBook)
 }
@@ -47,6 +53,6 @@ func (s *service) Delete(bookID string) error {
 	return s.bookRepository.Delete(bookID)
 }
 
-func NewBookID() string {
-	return ksuid.New().String()
-}
+// func NewBookID() string {
+// 	return ksuid.New().String()
+// }
