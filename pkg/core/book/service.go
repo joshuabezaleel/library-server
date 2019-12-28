@@ -52,7 +52,3 @@ func (s *service) Update(book *Book) (*Book, error) {
 func (s *service) Delete(bookID string) error {
 	return s.bookRepository.Delete(bookID)
 }
-
-// func NewBookID() string {
-// 	return ksuid.New().String()
-// }
