@@ -12,5 +12,6 @@ require (
 	github.com/rs/xid v1.2.1 // indirect
 	github.com/segmentio/ksuid v1.0.2
 	github.com/stretchr/testify v1.4.0
+	github.com/vektra/mockery v0.0.0-20181123154057-e78b021dcbb5 // indirect
 	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
 )
