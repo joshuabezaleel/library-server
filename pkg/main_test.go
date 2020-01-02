@@ -1,14 +1,16 @@
-package pkg
+package pkg_test
 
 import (
 	"os"
 	"testing"
 
-	"github.com/joshuabezaleel/library-server/pkg/core/user"
+	"github.com/joshuabezaleel/library-server/pkg/core/book"
 )
 
+var bookRepository book.MockRepository
+
 func TestMain(m *testing.M) {
-	mockUserRepository := &user.MockRepository{}
+	//  := &user.MockRepository{}
 
 	code := m.Run()
 

@@ -35,13 +35,53 @@ func TestGetPasswordMock(t *testing.T) {
 	defer mockDB.Close()
 	db := sqlx.NewDb(mockDB, "sqlmock")
 
-	rows := sqlmock.NewRows([]string{"password"}).AddRow("passwordfortesting1")
-	mock.ExpectQuery("^SELECT password FROM users WHERE username=?").
-		WithArgs("usernamefortesting1").
-		WillReturnRows(rows)
+	tt := []struct {
+		name     string
+		username string
+		password string
+	}{
+		{
+			name:     "valid username and password",
+			username: "username",
+			password: "password",
+		},
+	}
+
+	// username := "username"
+	// password := "password"
+
+	// rows := sqlmock.NewRows([]string{"password"}).
+	// 	AddRow("password").
+	// 	AddRow("")
+
+	// mock.ExpectQuery("SELECT password FROM users WHERE username=?").
+	// 	WithArgs(username).
+	// 	WillReturnRows(rows)
 
 	authRepository := NewAuthRepository(db)
-	password, err := authRepository.GetPassword("usernamefortesting1")
-	require.Nil(t, err)
-	require.Equal(t, password, "passwordfortesting1")
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			rows := sqlmock.NewRows([]string{"password"}).AddRow(tc.password)
+
+			mock.ExpectQuery("SELECT password FROM users WHERE username=?").
+				WithArgs(tc.username).
+				WillReturnRows(rows)
+
+			password, err := authRepository.GetPassword(tc.username)
+			require.Nil(t, err)
+			require.Equal(t, password, tc.password)
+		})
+	}
+
+	// rows := sqlmock.NewRows([]string{"password"}).AddRow("password")
+
+	// mock.ExpectQuery("SELECT password FROM users WHERE username=?").
+	// 	WithArgs("zaky")
+
+	_, err = authRepository.GetPassword("joshua")
+	require.NotNil(t, err)
+	// require.Equal(t, err.Error(), "")
+	// require.Equal(t, password, tc.password)
+
 }
