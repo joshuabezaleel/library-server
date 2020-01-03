@@ -41,9 +41,9 @@ func (s *service) Create(user *User) (*User, error) {
 	var newUser *User
 
 	if user.ID == "" {
-		newUser = NewUser(util.NewID(), user.StudentID, user.Role, user.Username, user.Email, hashAndSalt([]byte(user.Password)), user.TotalFine, time.Now())
+		newUser = NewUser(util.NewID(), user.StudentID, user.Role, user.Username, user.Email, hashAndSalt(user.Password), user.TotalFine, time.Now())
 	} else {
-		newUser = NewUser(user.ID, user.StudentID, user.Role, user.Username, user.Email, hashAndSalt([]byte(user.Password)), user.TotalFine, time.Now())
+		newUser = NewUser(user.ID, user.StudentID, user.Role, user.Username, user.Email, hashAndSalt(user.Password), user.TotalFine, time.Now())
 	}
 
 	return s.userRepository.Save(newUser)
@@ -54,7 +54,7 @@ func (s *service) Get(userID string) (*User, error) {
 }
 
 func (s *service) Update(user *User) (*User, error) {
-	user.Password = hashAndSalt([]byte(user.Password))
+	user.Password = hashAndSalt(user.Password)
 
 	return s.userRepository.Update(user)
 }
@@ -104,8 +104,9 @@ func newUserID() string {
 	return ksuid.New().String()
 }
 
-func hashAndSalt(password []byte) string {
-	hash, err := bcrypt.GenerateFromPassword(password, bcrypt.MinCost)
+func hashAndSalt(password string) string {
+	pwd := []byte(password)
+	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
 	if err != nil {
 		panic(err)
 	}

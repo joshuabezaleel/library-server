@@ -66,12 +66,12 @@ func TestUpdate(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	book := &Book{
-		ID:    util.NewID(),
-		Title: "title",
+		ID: util.NewID(),
 	}
 
 	bookRepository.On("Delete", book.ID).Return(nil)
 
 	err := bookService.Delete(book.ID)
+
 	require.Nil(t, err)
 }
