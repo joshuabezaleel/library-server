@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
@@ -16,6 +17,7 @@ type bookHandler struct {
 }
 
 func (handler *bookHandler) registerRouter(deployment string, router *mux.Router) {
+	log.Printf("registerRouter dipanggil kok ... deployment = %s", deployment)
 	if deployment == "PRODUCTION" {
 		// CRUD endpoints.
 		router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")

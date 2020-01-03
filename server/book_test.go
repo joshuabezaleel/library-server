@@ -9,9 +9,18 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/mux"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/joshuabezaleel/library-server/pkg/auth"
+
 	util "github.com/joshuabezaleel/library-server/pkg"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 )
+
+// var bookKRepository = &book.MockRepository{}
+// var userService = &book.MockService{}
 
 func TestCreateBook(t *testing.T) {
 	initialBook := &book.Book{
@@ -297,4 +306,29 @@ func TestDeleteBook(t *testing.T) {
 	}
 
 	repository.CleanUp()
+}
+
+func TestGetMock(t *testing.T) {
+	bookService := &book.MockService{}
+	authService := &auth.MockService{}
+
+	bookHandler := bookHandler{bookService, authService}
+
+	book := &book.Book{
+		ID:    util.NewID(),
+		Title: "title",
+	}
+
+	bookService.On("Get", book.ID).Return(book, nil)
+
+	url := fmt.Sprintf("/books/" + book.ID)
+
+	req := httptest.NewRequest("GET", url, nil)
+	w := httptest.NewRecorder()
+
+	req = mux.SetURLVars(req, map[string]string{"bookID": book.ID})
+
+	bookHandler.getBook(w, req)
+
+	require.Equal(t, http.StatusOK, w.Code)
 }
