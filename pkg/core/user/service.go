@@ -4,7 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
@@ -98,10 +97,6 @@ func (s *service) AddFine(userID string, fine uint32) (uint32, error) {
 
 func (s *service) GetTotalFine(userID string) (uint32, error) {
 	return s.userRepository.GetTotalFine(userID)
-}
-
-func newUserID() string {
-	return ksuid.New().String()
 }
 
 func hashAndSalt(password string) string {

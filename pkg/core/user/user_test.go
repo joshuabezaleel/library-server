@@ -154,9 +154,40 @@ func TestCheckLibrarian(t *testing.T) {
 	require.NotNil(t, err)
 }
 
+func TestGetTotalFine(t *testing.T) {
+	user := &User{
+		ID:        util.NewID(),
+		TotalFine: 7000,
+	}
+
+	userRepository.On("GetTotalFine", user.ID).Return(user.TotalFine, nil)
+
+	totalFine, err := userService.GetTotalFine(user.ID)
+
+	require.Nil(t, err)
+	require.Equal(t, totalFine, user.TotalFine)
+}
+
 func TestAddFine(t *testing.T) {
-	// user := &User{
-	// 	ID:       "123",
-	// 	Username: "Ahmad Zaky",
-	// }
+	// Happy path.
+	user := &User{
+		ID:        util.NewID(),
+		TotalFine: 2000,
+	}
+	var fine uint32 = 7000
+
+	userRepository.On("GetTotalFine", user.ID).Return(user.TotalFine, nil)
+
+	userRepository.On("AddFine", user.ID, user.TotalFine+fine).Return(nil)
+
+	addedFine, err := userService.AddFine(user.ID, fine)
+	require.Nil(t, err)
+	require.Equal(t, addedFine, user.TotalFine+fine)
+
+	// Error on GetTotalFine
+	userRepository.On("GetTotalFine", "another username").Return(uint32(0), errors.New("another error"))
+
+	addedFine, err = userService.AddFine("another username", fine)
+	require.NotNil(t, err)
+	require.Equal(t, addedFine, uint32(0))
 }
