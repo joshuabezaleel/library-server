@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
@@ -83,7 +86,18 @@ type Repository struct {
 // NewRepository returns a new Repository
 // with all of the necessary dependencies.
 func NewRepository(env string) *Repository {
-	err := godotenv.Load("build/.env")
+	_, b, _, _ := runtime.Caller(0)
+	basepath := filepath.Dir(b)
+	basepath = strings.TrimSuffix(basepath, "/persistence")
+	fmt.Println(basepath)
+
+	// dir, err := os.Getwd()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(dir)
+
+	err := godotenv.Load(basepath + "/build/.env")
 	if err != nil {
 		panic(err)
 	}
