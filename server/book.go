@@ -20,7 +20,7 @@ func (handler *bookHandler) registerRouter(deployment string, router *mux.Router
 	log.Printf("registerRouter dipanggil kok ... deployment = %s", deployment)
 	if deployment == "PRODUCTION" {
 		// CRUD endpoints.
-		router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")
+		router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.createBook))).Methods("POST")
 		router.HandleFunc("/books/{bookID}", handler.getBook).Methods("GET")
 		router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.updateBook))).Methods("PUT")
 		router.HandleFunc("/books/{bookID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.deleteBook))).Methods("DELETE")
@@ -29,7 +29,7 @@ func (handler *bookHandler) registerRouter(deployment string, router *mux.Router
 	} else if deployment == "TESTING" {
 		// CRUD endpoints.
 		// router.HandleFunc("/books", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckLibrarian(handler.CreateBook))).Methods("POST")
-		router.HandleFunc("/books", handler.CreateBook).Methods("POST")
+		router.HandleFunc("/books", handler.createBook).Methods("POST")
 		router.HandleFunc("/books/{bookID}", handler.getBook).Methods("GET")
 		router.HandleFunc("/books/{bookID}", handler.updateBook).Methods("PUT")
 		router.HandleFunc("/books/{bookID}", handler.deleteBook).Methods("DELETE")
@@ -40,7 +40,7 @@ func (handler *bookHandler) registerRouter(deployment string, router *mux.Router
 }
 
 // CreateBook handles the creation of a Book.
-func (handler *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request) {
+func (handler *bookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	book := book.Book{}
 
 	err := json.NewDecoder(r.Body).Decode(&book)
