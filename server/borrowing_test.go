@@ -113,6 +113,9 @@ func TestReturn(t *testing.T) {
 	initialBookCopy := createBookCopy()
 	otherBookCopy := createBookCopy()
 	initialUser := createUser()
+	// log.Printf("book copy id: %v\n", initialBookCopy.ID)
+	// log.Printf("other book copy id: %v\n", otherBookCopy.ID)
+	// log.Printf("user id: %v\n", initialUser.ID)
 
 	// Borrow the initialBookCopy by initialUser.
 	url := fmt.Sprintf("/books/" + initialBookCopy.BookID + "/bookcopies/" + initialBookCopy.ID + "/borrow")
@@ -128,6 +131,8 @@ func TestReturn(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 	srv.Router.ServeHTTP(rr, req)
+
+	// log.Println(rr.Body.String())
 
 	tt := []struct {
 		name             string
@@ -170,6 +175,7 @@ func TestReturn(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			url := fmt.Sprintf("/books/" + tc.bookID + "/bookcopies/" + tc.bookCopyID + "/return")
+			// log.Println(url)
 
 			req, err := http.NewRequest("POST", url, nil)
 			if err != nil {
@@ -182,6 +188,8 @@ func TestReturn(t *testing.T) {
 			req = req.WithContext(ctx)
 			rr := httptest.NewRecorder()
 			srv.Router.ServeHTTP(rr, req)
+
+			// log.Println(rr.Body.String())
 
 			resp := rr.Result()
 			defer resp.Body.Close()

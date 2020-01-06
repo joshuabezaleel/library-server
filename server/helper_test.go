@@ -23,6 +23,10 @@ func createBook() *book.Book {
 	rr := httptest.NewRecorder()
 	srv.Router.ServeHTTP(rr, req)
 
+	// log.Println("ASDFGHJKL")
+	// log.Println(rr.Body.String())
+	// log.Println("ASDFGHJKL")
+
 	return initialBook
 }
 

@@ -2,7 +2,6 @@ package persistence
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -148,7 +147,7 @@ func NewRepository(env string) *Repository {
 func (repo *Repository) EnsureTableExists() {
 	for _, query := range tableCreationQueries {
 		if _, err := repo.DB.Exec(query); err != nil {
-			log.Println(err)
+			panic(err)
 		}
 	}
 }

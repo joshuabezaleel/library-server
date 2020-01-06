@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -100,73 +101,74 @@ func TestCreateBook(t *testing.T) {
 	repository.CleanUp()
 }
 
-func TestGetBook(t *testing.T) {
-	initialBook := createBook()
+// func TestGetBook(t *testing.T) {
+// 	initialBook := createBook()
 
-	tt := []struct {
-		name         string
-		path         string
-		statusCode   int
-		errorMessage string
-	}{
-		{
-			name:         "success retrieving a valid book",
-			path:         "/" + initialBook.ID,
-			statusCode:   200,
-			errorMessage: "",
-		},
-		{
-			name:         "invalid book id path",
-			path:         "/" + util.NewID(),
-			statusCode:   500,
-			errorMessage: "",
-		},
-	}
+// 	tt := []struct {
+// 		name         string
+// 		path         string
+// 		statusCode   int
+// 		errorMessage string
+// 	}{
+// 		{
+// 			name:         "success retrieving a valid book",
+// 			path:         "/" + initialBook.ID,
+// 			statusCode:   200,
+// 			errorMessage: "",
+// 		},
+// 		{
+// 			name:         "invalid book id path",
+// 			path:         "/" + util.NewID(),
+// 			statusCode:   500,
+// 			errorMessage: "",
+// 		},
+// 	}
 
-	for _, tc := range tt {
-		t.Run(tc.name, func(t *testing.T) {
-			url := fmt.Sprintf("/books" + tc.path)
+// 	for _, tc := range tt {
+// 		t.Run(tc.name, func(t *testing.T) {
+// 			url := fmt.Sprintf("/books" + tc.path)
 
-			req, err := http.NewRequest("GET", url, nil)
-			if err != nil {
-				t.Errorf("Cannot perform HTTP request: %v", err)
-			}
+// 			req, err := http.NewRequest("GET", url, nil)
+// 			if err != nil {
+// 				t.Errorf("Cannot perform HTTP request: %v", err)
+// 			}
 
-			rr := httptest.NewRecorder()
-			srv.Router.ServeHTTP(rr, req)
+// 			rr := httptest.NewRecorder()
+// 			srv.Router.ServeHTTP(rr, req)
 
-			resp := rr.Result()
-			defer resp.Body.Close()
+// 			resp := rr.Result()
+// 			defer resp.Body.Close()
 
-			if resp.StatusCode != http.StatusOK {
-				if resp.StatusCode != tc.statusCode {
-					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-				}
-				return
-			}
+// 			if resp.StatusCode != http.StatusOK {
+// 				if resp.StatusCode != tc.statusCode {
+// 					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
+// 				}
+// 				return
+// 			}
 
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				t.Fatalf("could not read response: %v", err)
-			}
+// 			body, err := ioutil.ReadAll(resp.Body)
+// 			if err != nil {
+// 				t.Fatalf("could not read response: %v", err)
+// 			}
 
-			newBook := book.Book{}
-			err = json.Unmarshal(body, &newBook)
-			if err != nil {
-				t.Fatalf("expected a Book struct; got %s", body)
-			}
+// 			newBook := book.Book{}
+// 			err = json.Unmarshal(body, &newBook)
+// 			if err != nil {
+// 				t.Fatalf("expected a Book struct; got %s", body)
+// 			}
 
-			if initialBook.ID != newBook.ID {
-				t.Fatalf("expected id %v; got %v", initialBook.ID, newBook.ID)
-			}
-		})
-	}
+// 			if initialBook.ID != newBook.ID {
+// 				t.Fatalf("expected id %v; got %v", initialBook.ID, newBook.ID)
+// 			}
+// 		})
+// 	}
 
-	repository.CleanUp()
-}
+// 	repository.CleanUp()
+// }
 
 func TestUpdateBook(t *testing.T) {
 	initialBook := createBook()
+	// log.Println(initialBook.ID)
 
 	tt := []struct {
 		name         string
@@ -180,6 +182,7 @@ func TestUpdateBook(t *testing.T) {
 			name: "success updating a valid book",
 			path: "/" + initialBook.ID,
 			book: &book.Book{
+				ID:    initialBook.ID,
 				Title: "edited title",
 			},
 			title:        "edited title",
@@ -208,6 +211,8 @@ func TestUpdateBook(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			jsonReq, _ := json.Marshal(tc.book)
 			url := fmt.Sprintf("/books" + tc.path)
+			// log.Println(tc.book)
+			// log.Println(url)
 
 			req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonReq))
 			if err != nil {
@@ -216,8 +221,10 @@ func TestUpdateBook(t *testing.T) {
 
 			rr := httptest.NewRecorder()
 			srv.Router.ServeHTTP(rr, req)
+			// log.Println(rr.Body.String())
 
 			resp := rr.Result()
+			// log.Println(resp.Body)
 			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
@@ -319,16 +326,25 @@ func TestGetMock(t *testing.T) {
 		Title: "title",
 	}
 
-	bookService.On("Get", book.ID).Return(book, nil)
-
-	url := fmt.Sprintf("/books/" + book.ID)
-
+	url := fmt.Sprintf("/books/" + "invalidbookID")
 	req := httptest.NewRequest("GET", url, nil)
 	w := httptest.NewRecorder()
-
-	req = mux.SetURLVars(req, map[string]string{"bookID": book.ID})
-
 	bookHandler.getBook(w, req)
+	require.Equal(t, http.StatusBadRequest, w.Code)
 
+	bookService.On("Get", book.ID).Return(book, nil)
+	req = httptest.NewRequest("GET", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"bookID": book.ID})
+	w = httptest.NewRecorder()
+	bookHandler.getBook(w, req)
 	require.Equal(t, http.StatusOK, w.Code)
+
+	wrongID := util.NewID()
+	bookService.On("Get", wrongID).Return(nil, errors.New("another error"))
+	url = fmt.Sprintf("/books/" + wrongID)
+	req = httptest.NewRequest("GET", url, nil)
+	req = mux.SetURLVars(req, map[string]string{"bookID": wrongID})
+	w = httptest.NewRecorder()
+	bookHandler.getBook(w, req)
+	require.Equal(t, http.StatusInternalServerError, w.Code)
 }
