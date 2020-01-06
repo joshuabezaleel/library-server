@@ -47,17 +47,6 @@ func TestGetPasswordMock(t *testing.T) {
 		},
 	}
 
-	// username := "username"
-	// password := "password"
-
-	// rows := sqlmock.NewRows([]string{"password"}).
-	// 	AddRow("password").
-	// 	AddRow("")
-
-	// mock.ExpectQuery("SELECT password FROM users WHERE username=?").
-	// 	WithArgs(username).
-	// 	WillReturnRows(rows)
-
 	authRepository := NewAuthRepository(db)
 
 	for _, tc := range tt {
@@ -74,14 +63,6 @@ func TestGetPasswordMock(t *testing.T) {
 		})
 	}
 
-	// rows := sqlmock.NewRows([]string{"password"}).AddRow("password")
-
-	// mock.ExpectQuery("SELECT password FROM users WHERE username=?").
-	// 	WithArgs("zaky")
-
 	_, err = authRepository.GetPassword("joshua")
 	require.NotNil(t, err)
-	// require.Equal(t, err.Error(), "")
-	// require.Equal(t, password, tc.password)
-
 }
