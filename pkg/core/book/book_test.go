@@ -41,7 +41,7 @@ func TestGet(t *testing.T) {
 	newBook, err := bookService.Get(book.ID)
 
 	require.Nil(t, err)
-	require.Equal(t, newBook.ID, book.ID)
+	require.Equal(t, book.ID, newBook.ID)
 }
 
 func TestUpdate(t *testing.T) {
@@ -60,8 +60,8 @@ func TestUpdate(t *testing.T) {
 	updatedBook, err := bookService.Update(book)
 
 	require.Nil(t, err)
-	require.Equal(t, updatedBook.ID, book.ID)
-	require.Equal(t, updatedBook.Title, expectedBook.Title)
+	require.Equal(t, book.ID, updatedBook.ID)
+	require.Equal(t, expectedBook.Title, updatedBook.Title)
 }
 
 func TestDelete(t *testing.T) {
