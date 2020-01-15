@@ -41,6 +41,11 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
+	err = Mock.ExpectationsWereMet()
+	if err != nil {
+		panic(err)
+	}
+
 	os.Exit(code)
 	// err := godotenv.Load("../build/.env")
 	// if err != nil {

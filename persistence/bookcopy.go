@@ -46,17 +46,6 @@ func (repo *bookCopyRepository) Update(bookCopy *bookcopy.BookCopy) (*bookcopy.B
 		return nil, err
 	}
 
-	// log.Println(bookCopy.ID)
-
-	// var isExist bool
-
-	// err = repo.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM bookcopies WHERE id=$1)", bookCopy.ID).Scan(&isExist)
-	// if err != nil {
-	// 	log.Println("C")
-	// 	return nil, err
-	// }
-	// log.Printf("isExist= %v\n", isExist)
-
 	updatedBookCopy, err := repo.Get(bookCopy.ID)
 	if err != nil {
 		return nil, err
