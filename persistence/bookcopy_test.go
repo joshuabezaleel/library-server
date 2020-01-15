@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
-	"github.com/joshuabezaleel/library-server/pkg/core/book"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 )
 
@@ -15,79 +14,204 @@ func TestBookCopySave(t *testing.T) {
 	tt := []struct {
 		name     string
 		bookCopy *bookcopy.BookCopy
+		err      bool
 	}{
 		{
-			name: "valid book",
+			name: "save a valid book copy",
 			bookCopy: &bookcopy.BookCopy{
 				ID:        util.NewID(),
 				Condition: "New",
 			},
+			err: false,
+		},
+		{
+			name: "save an invalid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+			err: true,
 		},
 	}
 
+	// Assert a save for a valid BookCopy.
+	validBookCopy := tt[0].bookCopy
+
+	result := sqlmock.NewResult(1, 1)
+
+	Mock.ExpectExec("INSERT INTO bookcopies").
+		WithArgs(validBookCopy.ID, validBookCopy.Barcode, validBookCopy.BookID, validBookCopy.Condition, validBookCopy.AddedAt).
+		WillReturnResult(result)
+
+	// Tests.
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			result := sqlmock.NewResult(1, 1)
-
-			Mock.ExpectExec("INSERT INTO bookcopies").
-				WithArgs(tc.bookCopy.ID, tc.bookCopy.Barcode, tc.bookCopy.BookID, tc.bookCopy.Condition, tc.bookCopy.AddedAt).
-				WillReturnResult(result)
-
 			newBookCopy, err := BookCopyTestingRepository.Save(tc.bookCopy)
+
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
 
 			require.Nil(t, err)
 			require.Equal(t, tc.bookCopy.ID, newBookCopy.ID)
 		})
 	}
-
-	// Covering error
-	anotherBookCopy := &bookcopy.BookCopy{
-		ID: util.NewID(),
-	}
-	_, err := BookCopyTestingRepository.Save(anotherBookCopy)
-	require.NotNil(t, err)
 }
 
 func TestBookCopyGet(t *testing.T) {
 	tt := []struct {
-		name string
-		book *book.Book
+		name     string
+		bookCopy *bookcopy.BookCopy
+		err      bool
 	}{
 		{
-			name: "valid book",
-			book: &book.Book{
-				ID:    util.NewID(),
-				Title: "testTitle",
+			name: "get a valid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
 			},
+			err: false,
+		},
+		{
+			name: "get an invalid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+			err: true,
 		},
 	}
 
+	// Assert a get for a valid book copy.
+	validBookCopy := tt[0].bookCopy
+
+	rows := sqlmock.NewRows([]string{"id", "condition"}).
+		AddRow(validBookCopy.ID, validBookCopy.Condition)
+
+	Mock.ExpectQuery("SELECT (.+) FROM bookcopies").
+		WithArgs(validBookCopy.ID).
+		WillReturnRows(rows)
+
+	// Tests.
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			rows := sqlmock.NewRows([]string{"id", "title"}).
-				AddRow(tc.book.ID, tc.book.Title)
+			newBookCopy, err := BookCopyTestingRepository.Get(tc.bookCopy.ID)
 
-			Mock.ExpectQuery("SELECT (.+) FROM books WHERE id=?").
-				WithArgs(tc.book.ID).
-				WillReturnRows(rows)
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
 
-			newBook, err := BookTestingRepository.Get(tc.book.ID)
 			require.Nil(t, err)
-			require.Equal(t, tc.book.ID, newBook.ID)
+			require.Equal(t, tc.bookCopy.ID, newBookCopy.ID)
 		})
 	}
-
-	// Covering error
-	_, err := BookTestingRepository.Get(util.NewID())
-	require.NotNil(t, err)
 }
 
 func TestBookCopyUpdate(t *testing.T) {
+	tt := []struct {
+		name     string
+		bookCopy *bookcopy.BookCopy
+		err      bool
+	}{
+		{
+			name: "update a valid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+			err: false,
+		},
+		{
+			name: "update an invalid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+			err: true,
+		},
+	}
 
+	// Assert an update for a valid Book Copy.
+	validBookCopy := tt[0].bookCopy
+
+	result := sqlmock.NewResult(1, 1)
+
+	Mock.ExpectExec("UPDATE bookcopies SET").
+		WithArgs(validBookCopy.Barcode, validBookCopy.BookID, validBookCopy.Condition, validBookCopy.ID).
+		WillReturnResult(result)
+
+	rows := sqlmock.NewRows([]string{"id", "condition"}).
+		AddRow(validBookCopy.ID, validBookCopy.Condition)
+
+	Mock.ExpectQuery("SELECT (.+) FROM bookcopies WHERE id=?").
+		WithArgs(validBookCopy.ID).
+		WillReturnRows(rows)
+
+	// Tests.
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			updatedBookCopy, err := BookCopyTestingRepository.Update(tc.bookCopy)
+
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
+
+			require.Nil(t, err)
+			require.Equal(t, tc.bookCopy.ID, updatedBookCopy.ID)
+			require.Equal(t, tc.bookCopy.Condition, updatedBookCopy.Condition)
+		})
+	}
 }
 
 func TestBookCopyDelete(t *testing.T) {
+	tt := []struct {
+		name     string
+		bookCopy *bookcopy.BookCopy
+		err      bool
+	}{
+		{
+			name: "delete a valid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+			err: false,
+		},
+		{
+			name: "delete an invalid book copy",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+			err: true,
+		},
+	}
 
+	// Assert a delete for a valid Book Copy.
+	validBookCopy := tt[0].bookCopy
+
+	result := sqlmock.NewResult(1, 1)
+
+	Mock.ExpectExec("DELETE FROM bookcopies").
+		WithArgs(validBookCopy.ID).
+		WillReturnResult(result)
+
+	// Tests.
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			err := BookCopyTestingRepository.Delete(tc.bookCopy.ID)
+
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
+
+			require.Nil(t, err)
+		})
+	}
 }
 
 // func TestBookCopySave(t *testing.T) {
