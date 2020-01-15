@@ -1,142 +1,134 @@
 package persistence
 
-import (
-	"testing"
+// func TestUserSave(t *testing.T) {
+// 	// Create a new User and save it.
+// 	user := &user.User{
+// 		ID:       util.NewID(),
+// 		Username: "username",
+// 	}
+// 	user1, err := repository.UserRepository.Save(user)
 
-	util "github.com/joshuabezaleel/library-server/pkg"
-	"github.com/joshuabezaleel/library-server/pkg/core/user"
-	"github.com/stretchr/testify/require"
-)
+// 	// Happy path.
+// 	require.Nil(t, err)
+// 	require.Equal(t, user1.ID, user.ID)
 
-func TestUserSave(t *testing.T) {
-	// Create a new User and save it.
-	user := &user.User{
-		ID:       util.NewID(),
-		Username: "username",
-	}
-	user1, err := repository.UserRepository.Save(user)
+// 	repository.CleanUp()
+// }
 
-	// Happy path.
-	require.Nil(t, err)
-	require.Equal(t, user1.ID, user.ID)
+// func TestUserGet(t *testing.T) {
+// 	// Create a new User and save it.
+// 	user := &user.User{
+// 		ID: util.NewID(),
+// 	}
+// 	user1, err := repository.UserRepository.Save(user)
+// 	require.Nil(t, err)
 
-	repository.CleanUp()
-}
+// 	// Get the User.
+// 	user2, err := repository.UserRepository.Get(user.ID)
+// 	require.Nil(t, err)
+// 	require.Equal(t, user2.ID, user1.ID)
 
-func TestUserGet(t *testing.T) {
-	// Create a new User and save it.
-	user := &user.User{
-		ID: util.NewID(),
-	}
-	user1, err := repository.UserRepository.Save(user)
-	require.Nil(t, err)
+// 	// Get invalid User.
+// 	_, err = repository.UserRepository.Get(util.NewID())
+// 	require.NotNil(t, err)
 
-	// Get the User.
-	user2, err := repository.UserRepository.Get(user.ID)
-	require.Nil(t, err)
-	require.Equal(t, user2.ID, user1.ID)
+// 	repository.CleanUp()
+// }
 
-	// Get invalid User.
-	_, err = repository.UserRepository.Get(util.NewID())
-	require.NotNil(t, err)
+// func TestUserUpdate(t *testing.T) {
+// 	// Create a new User and save it.
+// 	user := &user.User{
+// 		ID:       util.NewID(),
+// 		Username: "username",
+// 	}
+// 	user1, err := repository.UserRepository.Save(user)
+// 	require.Nil(t, err)
 
-	repository.CleanUp()
-}
+// 	// Update the User's username.
+// 	user1.Username = "edited username"
+// 	user2, err := repository.UserRepository.Update(user1)
+// 	require.Nil(t, err)
+// 	require.Equal(t, user1.ID, user2.ID)
+// 	require.Equal(t, user.Username, "edited username")
 
-func TestUserUpdate(t *testing.T) {
-	// Create a new User and save it.
-	user := &user.User{
-		ID:       util.NewID(),
-		Username: "username",
-	}
-	user1, err := repository.UserRepository.Save(user)
-	require.Nil(t, err)
+// 	repository.CleanUp()
+// }
 
-	// Update the User's username.
-	user1.Username = "edited username"
-	user2, err := repository.UserRepository.Update(user1)
-	require.Nil(t, err)
-	require.Equal(t, user1.ID, user2.ID)
-	require.Equal(t, user.Username, "edited username")
+// func TestUserDelete(t *testing.T) {
+// 	// Create a new User and save it.
+// 	user := &user.User{
+// 		ID: util.NewID(),
+// 	}
+// 	_, err := repository.UserRepository.Save(user)
+// 	require.Nil(t, err)
 
-	repository.CleanUp()
-}
+// 	// Delete the User that was just created.
+// 	err = repository.UserRepository.Delete(user.ID)
+// 	require.Nil(t, err)
 
-func TestUserDelete(t *testing.T) {
-	// Create a new User and save it.
-	user := &user.User{
-		ID: util.NewID(),
-	}
-	_, err := repository.UserRepository.Save(user)
-	require.Nil(t, err)
+// 	// Unable to retrieve the User that was just deleted.
+// 	_, err = repository.UserRepository.Get(user.ID)
+// 	require.NotNil(t, err)
 
-	// Delete the User that was just created.
-	err = repository.UserRepository.Delete(user.ID)
-	require.Nil(t, err)
+// 	repository.CleanUp()
+// }
 
-	// Unable to retrieve the User that was just deleted.
-	_, err = repository.UserRepository.Get(user.ID)
-	require.NotNil(t, err)
+// func TestUserGetIDByUsername(t *testing.T) {
+// 	// Create a new User and save it.
+// 	user := &user.User{
+// 		ID:       util.NewID(),
+// 		Username: "username",
+// 	}
+// 	_, err := repository.UserRepository.Save(user)
+// 	require.Nil(t, err)
 
-	repository.CleanUp()
-}
+// 	// Get User ID by the username.
+// 	user2ID, err := repository.UserRepository.GetIDByUsername(user.Username)
+// 	require.Nil(t, err)
+// 	require.Equal(t, user2ID, user.ID)
 
-func TestUserGetIDByUsername(t *testing.T) {
-	// Create a new User and save it.
-	user := &user.User{
-		ID:       util.NewID(),
-		Username: "username",
-	}
-	_, err := repository.UserRepository.Save(user)
-	require.Nil(t, err)
+// 	repository.CleanUp()
+// }
 
-	// Get User ID by the username.
-	user2ID, err := repository.UserRepository.GetIDByUsername(user.Username)
-	require.Nil(t, err)
-	require.Equal(t, user2ID, user.ID)
+// func TestUserCheckLibrarian(t *testing.T) {
+// 	// Create a new User with the role "librarian" and save it.
+// 	user := &user.User{
+// 		ID:   util.NewID(),
+// 		Role: "librarian",
+// 	}
+// 	user1, err := repository.UserRepository.Save(user)
+// 	require.Nil(t, err)
 
-	repository.CleanUp()
-}
+// 	// Check the User's role.
+// 	role, err := repository.UserRepository.CheckLibrarian(user1.ID)
+// 	require.Nil(t, err)
+// 	require.Equal(t, role, "librarian")
 
-func TestUserCheckLibrarian(t *testing.T) {
-	// Create a new User with the role "librarian" and save it.
-	user := &user.User{
-		ID:   util.NewID(),
-		Role: "librarian",
-	}
-	user1, err := repository.UserRepository.Save(user)
-	require.Nil(t, err)
+// 	repository.CleanUp()
+// }
 
-	// Check the User's role.
-	role, err := repository.UserRepository.CheckLibrarian(user1.ID)
-	require.Nil(t, err)
-	require.Equal(t, role, "librarian")
+// func TestUserAddFine(t *testing.T) {
+// 	// Create a new User and save it.
+// 	user := &user.User{
+// 		ID: util.NewID(),
+// 	}
+// 	user1, err := repository.UserRepository.Save(user)
+// 	require.Nil(t, err)
 
-	repository.CleanUp()
-}
+// 	// Add fine to the user.
+// 	var fine uint32 = 7000
+// 	err = repository.UserRepository.AddFine(user.ID, fine)
+// 	require.Nil(t, err)
 
-func TestUserAddFine(t *testing.T) {
-	// Create a new User and save it.
-	user := &user.User{
-		ID: util.NewID(),
-	}
-	user1, err := repository.UserRepository.Save(user)
-	require.Nil(t, err)
+// 	// Get the User and check the fine amount.
+// 	user2, err := repository.UserRepository.Get(user.ID)
+// 	require.Nil(t, err)
+// 	require.Equal(t, user2.ID, user1.ID)
+// 	require.Equal(t, user2.TotalFine, fine)
 
-	// Add fine to the user.
-	var fine uint32 = 7000
-	err = repository.UserRepository.AddFine(user.ID, fine)
-	require.Nil(t, err)
+// 	repository.CleanUp()
+// }
 
-	// Get the User and check the fine amount.
-	user2, err := repository.UserRepository.Get(user.ID)
-	require.Nil(t, err)
-	require.Equal(t, user2.ID, user1.ID)
-	require.Equal(t, user2.TotalFine, fine)
+// func TestUserGetTotalFine(t *testing.T) {
 
-	repository.CleanUp()
-}
-
-func TestUserGetTotalFine(t *testing.T) {
-
-}
+// }

@@ -1,32 +1,60 @@
 package persistence
 
 import (
+	"database/sql"
 	"os"
 	"testing"
 
-	"github.com/joho/godotenv"
+	"github.com/joshuabezaleel/library-server/pkg/auth"
+	"github.com/joshuabezaleel/library-server/pkg/core/book"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jmoiron/sqlx"
 )
 
-const (
-	deployment = "TESTING"
+// const (
+// 	deployment = "TESTING"
+// )
+
+var (
+	DB                    *sqlx.DB
+	Mock                  sqlmock.Sqlmock
+	AuthTestingRepository auth.Repository
+	BookTestingRepository book.Repository
 )
 
-var repository *Repository
+// var repository *Repository
 
 func TestMain(m *testing.M) {
-	err := godotenv.Load("../build/.env")
+	var mockDB *sql.DB
+	var err error
+	mockDB, Mock, err = sqlmock.New()
 	if err != nil {
 		panic(err)
 	}
-	repository = NewRepository(deployment)
-	defer repository.DB.Close()
+	defer mockDB.Close()
+	DB = sqlx.NewDb(mockDB, "sqlmock")
 
-	// repository.EnsureDatabaseExists()
-	repository.EnsureTableExists()
+	// Repositories initialization with mock db
+	AuthTestingRepository = NewAuthRepository(DB)
+	BookTestingRepository = NewBookRepository(DB)
 
 	code := m.Run()
 
-	repository.CleanUp()
-
 	os.Exit(code)
+	// err := godotenv.Load("../build/.env")
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// repository = NewRepository(deployment)
+	// defer repository.DB.Close()
+
+	// // repository.EnsureDatabaseExists()
+	// repository.EnsureTableExists()
+
+	// code := m.Run()
+
+	// repository.CleanUp()
+
+	// os.Exit(code)
 }

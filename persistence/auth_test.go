@@ -3,19 +3,17 @@ package persistence
 import (
 	"testing"
 
-	"github.com/jmoiron/sqlx"
-
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestGetPassword(t *testing.T) {
-	mockDB, mock, err := sqlmock.New()
-	if err != nil {
-		require.Nil(t, err)
-	}
-	defer mockDB.Close()
-	db := sqlx.NewDb(mockDB, "sqlmock")
+	// mockDB, mock, err := sqlmock.New()
+	// if err != nil {
+	// 	require.Nil(t, err)
+	// }
+	// defer mockDB.Close()
+	// db := sqlx.NewDb(mockDB, "sqlmock")
 
 	tt := []struct {
 		name     string
@@ -29,22 +27,22 @@ func TestGetPassword(t *testing.T) {
 		},
 	}
 
-	authRepository := NewAuthRepository(db)
+	// authRepository := NewAuthRepository(db)
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			rows := sqlmock.NewRows([]string{"password"}).AddRow(tc.password)
 
-			mock.ExpectQuery("SELECT password FROM users WHERE username=?").
+			Mock.ExpectQuery("SELECT password FROM users WHERE username=?").
 				WithArgs(tc.username).
 				WillReturnRows(rows)
 
-			password, err := authRepository.GetPassword(tc.username)
+			password, err := AuthTestingRepository.GetPassword(tc.username)
 			require.Nil(t, err)
 			require.Equal(t, password, tc.password)
 		})
 	}
 
-	_, err = authRepository.GetPassword("joshua")
+	_, err := AuthTestingRepository.GetPassword("joshua")
 	require.NotNil(t, err)
 }

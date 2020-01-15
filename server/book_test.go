@@ -3,18 +3,11 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gorilla/mux"
-
-	"github.com/stretchr/testify/require"
-
-	"github.com/joshuabezaleel/library-server/pkg/auth"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
@@ -315,36 +308,36 @@ func TestDeleteBook(t *testing.T) {
 	repository.CleanUp()
 }
 
-func TestGetMock(t *testing.T) {
-	bookService := &book.MockService{}
-	authService := &auth.MockService{}
+// func TestGetMock(t *testing.T) {
+// 	bookService := &book.MockService{}
+// 	authService := &auth.MockService{}
 
-	bookHandler := bookHandler{bookService, authService}
+// 	bookHandler := bookHandler{bookService, authService}
 
-	book := &book.Book{
-		ID:    util.NewID(),
-		Title: "title",
-	}
+// 	book := &book.Book{
+// 		ID:    util.NewID(),
+// 		Title: "title",
+// 	}
 
-	url := fmt.Sprintf("/books/" + "invalidbookID")
-	req := httptest.NewRequest("GET", url, nil)
-	w := httptest.NewRecorder()
-	bookHandler.getBook(w, req)
-	require.Equal(t, http.StatusBadRequest, w.Code)
+// 	url := fmt.Sprintf("/books/" + "invalidbookID")
+// 	req := httptest.NewRequest("GET", url, nil)
+// 	w := httptest.NewRecorder()
+// 	bookHandler.getBook(w, req)
+// 	require.Equal(t, http.StatusBadRequest, w.Code)
 
-	bookService.On("Get", book.ID).Return(book, nil)
-	req = httptest.NewRequest("GET", url, nil)
-	req = mux.SetURLVars(req, map[string]string{"bookID": book.ID})
-	w = httptest.NewRecorder()
-	bookHandler.getBook(w, req)
-	require.Equal(t, http.StatusOK, w.Code)
+// 	bookService.On("Get", book.ID).Return(book, nil)
+// 	req = httptest.NewRequest("GET", url, nil)
+// 	req = mux.SetURLVars(req, map[string]string{"bookID": book.ID})
+// 	w = httptest.NewRecorder()
+// 	bookHandler.getBook(w, req)
+// 	require.Equal(t, http.StatusOK, w.Code)
 
-	wrongID := util.NewID()
-	bookService.On("Get", wrongID).Return(nil, errors.New("another error"))
-	url = fmt.Sprintf("/books/" + wrongID)
-	req = httptest.NewRequest("GET", url, nil)
-	req = mux.SetURLVars(req, map[string]string{"bookID": wrongID})
-	w = httptest.NewRecorder()
-	bookHandler.getBook(w, req)
-	require.Equal(t, http.StatusInternalServerError, w.Code)
-}
+// 	wrongID := util.NewID()
+// 	bookService.On("Get", wrongID).Return(nil, errors.New("another error"))
+// 	url = fmt.Sprintf("/books/" + wrongID)
+// 	req = httptest.NewRequest("GET", url, nil)
+// 	req = mux.SetURLVars(req, map[string]string{"bookID": wrongID})
+// 	w = httptest.NewRecorder()
+// 	bookHandler.getBook(w, req)
+// 	require.Equal(t, http.StatusInternalServerError, w.Code)
+// }
