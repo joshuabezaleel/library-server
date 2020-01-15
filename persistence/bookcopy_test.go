@@ -1,5 +1,95 @@
 package persistence
 
+import (
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/require"
+
+	util "github.com/joshuabezaleel/library-server/pkg"
+	"github.com/joshuabezaleel/library-server/pkg/core/book"
+	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
+)
+
+func TestBookCopySave(t *testing.T) {
+	tt := []struct {
+		name     string
+		bookCopy *bookcopy.BookCopy
+	}{
+		{
+			name: "valid book",
+			bookCopy: &bookcopy.BookCopy{
+				ID:        util.NewID(),
+				Condition: "New",
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sqlmock.NewResult(1, 1)
+
+			Mock.ExpectExec("INSERT INTO bookcopies").
+				WithArgs(tc.bookCopy.ID, tc.bookCopy.Barcode, tc.bookCopy.BookID, tc.bookCopy.Condition, tc.bookCopy.AddedAt).
+				WillReturnResult(result)
+
+			newBookCopy, err := BookCopyTestingRepository.Save(tc.bookCopy)
+
+			require.Nil(t, err)
+			require.Equal(t, tc.bookCopy.ID, newBookCopy.ID)
+		})
+	}
+
+	// Covering error
+	anotherBookCopy := &bookcopy.BookCopy{
+		ID: util.NewID(),
+	}
+	_, err := BookCopyTestingRepository.Save(anotherBookCopy)
+	require.NotNil(t, err)
+}
+
+func TestBookCopyGet(t *testing.T) {
+	tt := []struct {
+		name string
+		book *book.Book
+	}{
+		{
+			name: "valid book",
+			book: &book.Book{
+				ID:    util.NewID(),
+				Title: "testTitle",
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			rows := sqlmock.NewRows([]string{"id", "title"}).
+				AddRow(tc.book.ID, tc.book.Title)
+
+			Mock.ExpectQuery("SELECT (.+) FROM books WHERE id=?").
+				WithArgs(tc.book.ID).
+				WillReturnRows(rows)
+
+			newBook, err := BookTestingRepository.Get(tc.book.ID)
+			require.Nil(t, err)
+			require.Equal(t, tc.book.ID, newBook.ID)
+		})
+	}
+
+	// Covering error
+	_, err := BookTestingRepository.Get(util.NewID())
+	require.NotNil(t, err)
+}
+
+func TestBookCopyUpdate(t *testing.T) {
+
+}
+
+func TestBookCopyDelete(t *testing.T) {
+
+}
+
 // func TestBookCopySave(t *testing.T) {
 // 	// Create a new BookCopy and save it.
 // 	bookCopy := &bookcopy.BookCopy{

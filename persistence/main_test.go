@@ -7,6 +7,7 @@ import (
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
+	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -17,10 +18,11 @@ import (
 // )
 
 var (
-	DB                    *sqlx.DB
-	Mock                  sqlmock.Sqlmock
-	AuthTestingRepository auth.Repository
-	BookTestingRepository book.Repository
+	DB                        *sqlx.DB
+	Mock                      sqlmock.Sqlmock
+	AuthTestingRepository     auth.Repository
+	BookTestingRepository     book.Repository
+	BookCopyTestingRepository bookcopy.Repository
 )
 
 // var repository *Repository
@@ -38,6 +40,7 @@ func TestMain(m *testing.M) {
 	// Repositories initialization with mock db
 	AuthTestingRepository = NewAuthRepository(DB)
 	BookTestingRepository = NewBookRepository(DB)
+	BookCopyTestingRepository = NewBookCopyRepository(DB)
 
 	code := m.Run()
 

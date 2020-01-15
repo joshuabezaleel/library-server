@@ -14,37 +14,49 @@ func TestBookSave(t *testing.T) {
 	tt := []struct {
 		name string
 		book *book.Book
+		err  bool
 	}{
 		{
-			name: "valid book",
+			name: "save a valid book",
 			book: &book.Book{
 				ID:    util.NewID(),
 				Title: "testTitle",
 			},
+			err: false,
+		},
+		{
+			name: "save an invalid book",
+			book: &book.Book{
+				ID:    util.NewID(),
+				Title: "anotherTestTitle",
+			},
+			err: true,
 		},
 	}
 
+	// Assserting a valid Book
+	validBook := tt[0].book
+
+	result := sqlmock.NewResult(1, 1)
+
+	Mock.ExpectExec("INSERT INTO books").
+		WithArgs(validBook.ID, validBook.Title, validBook.Publisher, validBook.YearPublished, validBook.CallNumber, validBook.CoverPicture, validBook.ISBN, validBook.Collation, validBook.Edition, validBook.Description, validBook.LOCClassification, validBook.Subject, validBook.Author, validBook.Quantity, validBook.AddedAt).
+		WillReturnResult(result)
+
+	// Tests
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			result := sqlmock.NewResult(1, 1)
-
-			Mock.ExpectExec("INSERT INTO books").
-				WithArgs(tc.book.ID, tc.book.Title, tc.book.Publisher, tc.book.YearPublished, tc.book.CallNumber, tc.book.CoverPicture, tc.book.ISBN, tc.book.Collation, tc.book.Edition, tc.book.Description, tc.book.LOCClassification, tc.book.Subject, tc.book.Author, tc.book.Quantity, tc.book.AddedAt).
-				WillReturnResult(result)
-
 			newBook, err := BookTestingRepository.Save(tc.book)
+
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
 
 			require.Nil(t, err)
 			require.Equal(t, tc.book.ID, newBook.ID)
 		})
 	}
-
-	// Covering error
-	anotherBook := &book.Book{
-		ID: util.NewID(),
-	}
-	_, err := BookTestingRepository.Save(anotherBook)
-	require.NotNil(t, err)
 }
 
 func TestBookGet(t *testing.T) {
@@ -53,7 +65,7 @@ func TestBookGet(t *testing.T) {
 		book *book.Book
 	}{
 		{
-			name: "valid book",
+			name: "get a valid book",
 			book: &book.Book{
 				ID:    util.NewID(),
 				Title: "testTitle",
@@ -87,7 +99,7 @@ func TestBookUpdate(t *testing.T) {
 		book *book.Book
 	}{
 		{
-			name: "valid book",
+			name: "update a valid book",
 			book: &book.Book{
 				ID:    util.NewID(),
 				Title: "testTitle",
@@ -132,7 +144,7 @@ func TestBookDelete(t *testing.T) {
 		book *book.Book
 	}{
 		{
-			name: "valid book",
+			name: "delete a valid book",
 			book: &book.Book{
 				ID:    util.NewID(),
 				Title: "testTitle",
