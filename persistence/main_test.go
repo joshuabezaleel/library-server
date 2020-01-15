@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
+	"github.com/joshuabezaleel/library-server/pkg/borrowing"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 
@@ -23,6 +24,7 @@ var (
 	AuthTestingRepository     auth.Repository
 	BookTestingRepository     book.Repository
 	BookCopyTestingRepository bookcopy.Repository
+	BorrowTestingRepository   borrowing.Repository
 )
 
 // var repository *Repository
@@ -41,6 +43,7 @@ func TestMain(m *testing.M) {
 	AuthTestingRepository = NewAuthRepository(DB)
 	BookTestingRepository = NewBookRepository(DB)
 	BookCopyTestingRepository = NewBookCopyRepository(DB)
+	BorrowTestingRepository = NewBorrowRepository(DB)
 
 	code := m.Run()
 

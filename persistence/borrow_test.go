@@ -1,5 +1,83 @@
 package persistence
 
+import (
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/require"
+
+	util "github.com/joshuabezaleel/library-server/pkg"
+	"github.com/joshuabezaleel/library-server/pkg/borrowing"
+)
+
+func TestBorrowBorrow(t *testing.T) {
+	tt := []struct {
+		name   string
+		borrow *borrowing.Borrow
+		err    bool
+	}{
+		{
+			name: "valid borrow",
+			borrow: &borrowing.Borrow{
+				ID:         util.NewID(),
+				UserID:     util.NewID(),
+				BookCopyID: util.NewID(),
+			},
+			err: false,
+		},
+		{
+			name: "invalid borrow",
+			borrow: &borrowing.Borrow{
+				ID:         util.NewID(),
+				UserID:     util.NewID(),
+				BookCopyID: util.NewID(),
+			},
+			err: true,
+		},
+	}
+
+	// Assert a valid Borrow.
+	validBorrow := tt[0].borrow
+
+	result := sqlmock.NewResult(1, 1)
+
+	Mock.ExpectExec("INSERT INTO borrows").
+		WithArgs(validBorrow.ID, validBorrow.UserID, validBorrow.BookCopyID, validBorrow.Fine, validBorrow.BorrowedAt, validBorrow.DueDate, validBorrow.ReturnedAt).
+		WillReturnResult(result)
+
+	// Tests.
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			newBorrow, err := BorrowTestingRepository.Borrow(tc.borrow)
+
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
+
+			require.Nil(t, err)
+			require.Equal(t, tc.borrow.UserID, newBorrow.UserID)
+			require.Equal(t, tc.borrow.BookCopyID, newBorrow.BookCopyID)
+		})
+	}
+}
+
+func TestBorrowGet(t *testing.T) {
+
+}
+
+func TestBorrowGetByUserIDAndBookCopyID(t *testing.T) {
+
+}
+
+func TestBorrowCheckBorrowed(t *testing.T) {
+
+}
+
+func TestBorrowReturn(t *testing.T) {
+
+}
+
 // func TestBorrow(t *testing.T) {
 // 	// Create a new Borrow instance and Borrow it.
 // 	borrow := &borrowing.Borrow{
