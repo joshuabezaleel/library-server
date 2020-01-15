@@ -72,7 +72,7 @@ func (s *service) CheckLibrarian(username string) (bool, error) {
 		return false, err
 	}
 
-	role, err := s.userRepository.CheckLibrarian(userID)
+	role, err := s.userRepository.GetRole(userID)
 	if err != nil {
 		return false, err
 	}

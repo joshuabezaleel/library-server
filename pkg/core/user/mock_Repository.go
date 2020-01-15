@@ -23,27 +23,6 @@ func (_m *MockRepository) AddFine(userID string, fine uint32) error {
 	return r0
 }
 
-// CheckLibrarian provides a mock function with given fields: userID
-func (_m *MockRepository) CheckLibrarian(userID string) (string, error) {
-	ret := _m.Called(userID)
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func(string) string); ok {
-		r0 = rf(userID)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(userID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // Delete provides a mock function with given fields: userID
 func (_m *MockRepository) Delete(userID string) error {
 	ret := _m.Called(userID)
@@ -95,6 +74,27 @@ func (_m *MockRepository) GetIDByUsername(username string) (string, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetRole provides a mock function with given fields: userID
+func (_m *MockRepository) GetRole(userID string) (string, error) {
+	ret := _m.Called(userID)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(userID)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(userID)
 	} else {
 		r1 = ret.Error(1)
 	}

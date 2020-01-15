@@ -10,7 +10,7 @@ type Repository interface {
 
 	// Other operations.
 	GetIDByUsername(username string) (string, error)
-	CheckLibrarian(userID string) (string, error)
+	GetRole(userID string) (string, error)
 	AddFine(userID string, fine uint32) error
 	GetTotalFine(userID string) (uint32, error)
 }

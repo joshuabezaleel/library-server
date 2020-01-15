@@ -130,7 +130,7 @@ func TestCheckLibrarian(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			userRepository.On("GetIDByUsername", tc.user.Username).Return(tc.user.ID, nil)
 
-			userRepository.On("CheckLibrarian", tc.user.ID).Return(tc.user.Role, nil)
+			userRepository.On("GetRole", tc.user.ID).Return(tc.user.Role, nil)
 
 			isLibrarian, err := userService.CheckLibrarian(tc.user.Username)
 
@@ -141,7 +141,7 @@ func TestCheckLibrarian(t *testing.T) {
 
 	// Testing error on CheckLibrarian
 	userRepository.On("GetIDByUsername", "random username").Return("random user ID", nil)
-	userRepository.On("CheckLibrarian", "random user ID").Return("", errors.New("another error"))
+	userRepository.On("GetRole", "random user ID").Return("", errors.New("another error"))
 
 	_, err := userService.CheckLibrarian("random username")
 	require.NotNil(t, err)

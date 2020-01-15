@@ -75,7 +75,7 @@ func (repo *userRepository) GetIDByUsername(username string) (string, error) {
 	return userID, nil
 }
 
-func (repo *userRepository) CheckLibrarian(userID string) (string, error) {
+func (repo *userRepository) GetRole(userID string) (string, error) {
 	var role string
 
 	err := repo.DB.QueryRow("SELECT role FROM users WHERE id=$1", userID).Scan(&role)
