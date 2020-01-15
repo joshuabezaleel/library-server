@@ -192,6 +192,7 @@ func TestBookDelete(t *testing.T) {
 
 	// Assert a delete for a valid Book.
 	validBook := tt[0].book
+
 	result := sqlmock.NewResult(1, 1)
 
 	Mock.ExpectExec("DELETE FROM books").
