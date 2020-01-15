@@ -28,7 +28,7 @@ func TestGetPassword(t *testing.T) {
 		},
 	}
 
-	// Asserting a valid username and password
+	// Assert a valid username and password.
 	validUsername := tt[0].username
 	validPassword := tt[0].password
 	rows := sqlmock.NewRows([]string{"password"}).AddRow(validPassword)
@@ -37,7 +37,7 @@ func TestGetPassword(t *testing.T) {
 		WithArgs(validUsername).
 		WillReturnRows(rows)
 
-	// Tests
+	// Tests.
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			password, err := AuthTestingRepository.GetPassword(tc.username)
