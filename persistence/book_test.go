@@ -10,21 +10,6 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 )
 
-// func TestBookSave(t *testing.T) {
-// 	// Create a new Book and save it.
-// 	book := &book.Book{
-// 		ID:         util.NewID(),
-// 		CallNumber: util.NewID(),
-// 	}
-// 	newBook, err := repository.BookRepository.Save(book)
-
-// 	// Happy path.
-// 	require.Nil(t, err)
-// 	require.Equal(t, book.ID, newBook.ID)
-
-// 	repository.CleanUp()
-// }
-
 func TestBookSave(t *testing.T) {
 	tt := []struct {
 		name string
@@ -50,10 +35,11 @@ func TestBookSave(t *testing.T) {
 			newBook, err := BookTestingRepository.Save(tc.book)
 
 			require.Nil(t, err)
-			require.Equal(t, newBook.ID, tc.book.ID)
+			require.Equal(t, tc.book.ID, newBook.ID)
 		})
 	}
 
+	// Covering error
 	anotherBook := &book.Book{
 		ID: util.NewID(),
 	}
@@ -86,11 +72,110 @@ func TestBookGet(t *testing.T) {
 
 			newBook, err := BookTestingRepository.Get(tc.book.ID)
 			require.Nil(t, err)
-			require.Equal(t, newBook.ID, tc.book.ID)
+			require.Equal(t, tc.book.ID, newBook.ID)
 		})
-
 	}
+
+	// Covering error
+	_, err := BookTestingRepository.Get(util.NewID())
+	require.NotNil(t, err)
 }
+
+func TestBookUpdate(t *testing.T) {
+	tt := []struct {
+		name string
+		book *book.Book
+	}{
+		{
+			name: "valid book",
+			book: &book.Book{
+				ID:    util.NewID(),
+				Title: "testTitle",
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sqlmock.NewResult(1, 1)
+
+			Mock.ExpectExec("UPDATE books SET").
+				WithArgs(tc.book.Title, tc.book.Publisher, tc.book.YearPublished, tc.book.CallNumber, tc.book.CoverPicture, tc.book.ISBN, tc.book.Collation, tc.book.Edition, tc.book.Description, tc.book.LOCClassification, tc.book.Subject, tc.book.Author, tc.book.Quantity, tc.book.ID).
+				WillReturnResult(result)
+
+			rows := sqlmock.NewRows([]string{"id", "title"}).
+				AddRow(tc.book.ID, tc.book.Title)
+
+			Mock.ExpectQuery("SELECT (.+) FROM books WHERE id=?").
+				WithArgs(tc.book.ID).
+				WillReturnRows(rows)
+
+			updatedBook, err := BookTestingRepository.Update(tc.book)
+
+			require.Nil(t, err)
+			require.Equal(t, tc.book.ID, updatedBook.ID)
+			require.Equal(t, tc.book.Title, updatedBook.Title)
+		})
+	}
+
+	// Covering error
+	anotherBook := &book.Book{
+		ID: util.NewID(),
+	}
+	_, err := BookTestingRepository.Update(anotherBook)
+	require.NotNil(t, err)
+}
+
+func TestBookDelete(t *testing.T) {
+	tt := []struct {
+		name string
+		book *book.Book
+	}{
+		{
+			name: "valid book",
+			book: &book.Book{
+				ID:    util.NewID(),
+				Title: "testTitle",
+			},
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			result := sqlmock.NewResult(1, 1)
+
+			Mock.ExpectExec("DELETE FROM books").
+				WithArgs(tc.book.ID).
+				WillReturnResult(result)
+
+			err := BookTestingRepository.Delete(tc.book.ID)
+
+			require.Nil(t, err)
+		})
+	}
+
+	// Covering error
+	anotherBook := &book.Book{
+		ID: util.NewID(),
+	}
+	err := BookTestingRepository.Delete(anotherBook.ID)
+	require.NotNil(t, err)
+}
+
+// func TestBookSave(t *testing.T) {
+// 	// Create a new Book and save it.
+// 	book := &book.Book{
+// 		ID:         util.NewID(),
+// 		CallNumber: util.NewID(),
+// 	}
+// 	newBook, err := repository.BookRepository.Save(book)
+
+// 	// Happy path.
+// 	require.Nil(t, err)
+// 	require.Equal(t, book.ID, newBook.ID)
+
+// 	repository.CleanUp()
+// }
 
 // func TestBookGet(t *testing.T) {
 // 	// Create a new Book and save it.
