@@ -8,13 +8,6 @@ import (
 )
 
 func TestGetPassword(t *testing.T) {
-	// mockDB, mock, err := sqlmock.New()
-	// if err != nil {
-	// 	require.Nil(t, err)
-	// }
-	// defer mockDB.Close()
-	// db := sqlx.NewDb(mockDB, "sqlmock")
-
 	tt := []struct {
 		name     string
 		username string
@@ -26,8 +19,6 @@ func TestGetPassword(t *testing.T) {
 			password: "password",
 		},
 	}
-
-	// authRepository := NewAuthRepository(db)
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {

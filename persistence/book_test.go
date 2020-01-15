@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	// "github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/require"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
@@ -25,6 +24,7 @@ import (
 
 // 	repository.CleanUp()
 // }
+
 func TestBookSave(t *testing.T) {
 	tt := []struct {
 		name string
@@ -39,13 +39,9 @@ func TestBookSave(t *testing.T) {
 		},
 	}
 
-	// bookRepository := NewBookRepository(db)
-
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			result := sqlmock.NewResult(1, 1)
-			// rows := sqlmock.NewRows([]string{"id", "title"}).
-			// 	AddRow(tc.book.ID, tc.book.Title)
 
 			Mock.ExpectExec("INSERT INTO books").
 				WithArgs(tc.book.ID, tc.book.Title, tc.book.Publisher, tc.book.YearPublished, tc.book.CallNumber, tc.book.CoverPicture, tc.book.ISBN, tc.book.Collation, tc.book.Edition, tc.book.Description, tc.book.LOCClassification, tc.book.Subject, tc.book.Author, tc.book.Quantity, tc.book.AddedAt).
@@ -66,13 +62,6 @@ func TestBookSave(t *testing.T) {
 }
 
 func TestBookGet(t *testing.T) {
-	// mockDB, mock, err := sqlmock.New()
-	// if err != nil {
-	// 	require.Nil(t, err)
-	// }
-	// defer mockDB.Close()
-	// db := sqlx.NewDb(mockDB, "sqlmock")
-
 	tt := []struct {
 		name string
 		book *book.Book
@@ -85,8 +74,6 @@ func TestBookGet(t *testing.T) {
 			},
 		},
 	}
-
-	// bookRepository := NewBookRepository(db)
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
