@@ -31,6 +31,7 @@ func TestGetPassword(t *testing.T) {
 	// Assert a valid username and password.
 	validUsername := tt[0].username
 	validPassword := tt[0].password
+
 	rows := sqlmock.NewRows([]string{"password"}).AddRow(validPassword)
 
 	Mock.ExpectQuery("SELECT password FROM users WHERE username=?").
