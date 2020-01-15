@@ -9,6 +9,7 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/borrowing"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
+	"github.com/joshuabezaleel/library-server/pkg/core/user"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -25,6 +26,7 @@ var (
 	BookTestingRepository     book.Repository
 	BookCopyTestingRepository bookcopy.Repository
 	BorrowTestingRepository   borrowing.Repository
+	UserTestingRepository     user.Repository
 )
 
 // var repository *Repository
@@ -44,6 +46,7 @@ func TestMain(m *testing.M) {
 	BookTestingRepository = NewBookRepository(DB)
 	BookCopyTestingRepository = NewBookCopyRepository(DB)
 	BorrowTestingRepository = NewBorrowRepository(DB)
+	UserTestingRepository = NewUserRepository(DB)
 
 	code := m.Run()
 

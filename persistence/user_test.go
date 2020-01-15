@@ -1,5 +1,65 @@
 package persistence
 
+import (
+	"testing"
+
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/stretchr/testify/require"
+
+	util "github.com/joshuabezaleel/library-server/pkg"
+	"github.com/joshuabezaleel/library-server/pkg/core/user"
+)
+
+func TestUserSave(t *testing.T) {
+	tt := []struct {
+		name string
+		user *user.User
+		err  bool
+	}{
+		{
+			name: "save a valid user",
+			user: &user.User{
+				ID:       util.NewID(),
+				Username: "testUsername",
+			},
+			err: false,
+		},
+		{
+			name: "save an invalid user",
+			user: &user.User{
+				ID:       util.NewID(),
+				Username: "anotherTestUsername",
+			},
+			err: true,
+		},
+	}
+
+	// Asssert a save for a valid User.
+	validUser := tt[0].user
+
+	result := sqlmock.NewResult(1, 1)
+
+	Mock.ExpectExec("INSERT INTO users").
+		WithArgs(validUser.ID, validUser.StudentID, validUser.Role, validUser.Username, validUser.Email, validUser.Password, validUser.TotalFine, validUser.RegisteredAt).
+		WillReturnResult(result)
+
+	// Tests.
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			newUser, err := UserTestingRepository.Save(tc.user)
+
+			if tc.err {
+				require.NotNil(t, err)
+				return
+			}
+
+			require.Nil(t, err)
+			require.Equal(t, tc.user.ID, newUser.ID)
+			require.Equal(t, tc.user.Username, newUser.Username)
+		})
+	}
+}
+
 // func TestUserSave(t *testing.T) {
 // 	// Create a new User and save it.
 // 	user := &user.User{
