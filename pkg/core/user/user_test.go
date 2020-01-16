@@ -49,7 +49,7 @@ func TestGet(t *testing.T) {
 	newUser, err := userService.Get(user.ID)
 
 	require.Nil(t, err)
-	require.Equal(t, newUser.ID, user.ID)
+	require.Equal(t, user.ID, newUser.ID)
 }
 func TestUpdate(t *testing.T) {
 	user := &User{
@@ -67,8 +67,8 @@ func TestUpdate(t *testing.T) {
 	updatedUser, err := userService.Update(user)
 
 	require.Nil(t, err)
-	require.Equal(t, updatedUser.ID, user.ID)
-	require.Equal(t, updatedUser.Username, expectedUser.Username)
+	require.Equal(t, user.ID, updatedUser.ID)
+	require.Equal(t, expectedUser.Username, updatedUser.Username)
 }
 
 func TestDelete(t *testing.T) {
@@ -94,7 +94,7 @@ func TestGetUserIDByUsername(t *testing.T) {
 	userID, err := userService.GetUserIDByUsername(user.Username)
 
 	require.Nil(t, err)
-	require.Equal(t, userID, user.ID)
+	require.Equal(t, user.ID, userID)
 }
 
 func TestCheckLibrarian(t *testing.T) {
@@ -134,8 +134,8 @@ func TestCheckLibrarian(t *testing.T) {
 
 			isLibrarian, err := userService.CheckLibrarian(tc.user.Username)
 
-			require.Equal(t, isLibrarian, tc.isLibrarian)
-			require.Equal(t, err, tc.err)
+			require.Equal(t, tc.isLibrarian, isLibrarian)
+			require.Equal(t, tc.err, err)
 		})
 	}
 
@@ -165,7 +165,7 @@ func TestGetTotalFine(t *testing.T) {
 	totalFine, err := userService.GetTotalFine(user.ID)
 
 	require.Nil(t, err)
-	require.Equal(t, totalFine, user.TotalFine)
+	require.Equal(t, user.TotalFine, totalFine)
 }
 
 func TestAddFine(t *testing.T) {
@@ -182,12 +182,12 @@ func TestAddFine(t *testing.T) {
 
 	addedFine, err := userService.AddFine(user.ID, fine)
 	require.Nil(t, err)
-	require.Equal(t, addedFine, user.TotalFine+fine)
+	require.Equal(t, user.TotalFine+fine, addedFine)
 
 	// Error on GetTotalFine
 	userRepository.On("GetTotalFine", "another username").Return(uint32(0), errors.New("another error"))
 
 	addedFine, err = userService.AddFine("another username", fine)
 	require.NotNil(t, err)
-	require.Equal(t, addedFine, uint32(0))
+	require.Equal(t, uint32(0), addedFine)
 }
