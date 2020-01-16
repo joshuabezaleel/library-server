@@ -16,6 +16,7 @@ var borrowRepository borrowing.MockRepository
 var bookRepository book.MockRepository
 var bookCopyRepository bookcopy.MockRepository
 var userRepository user.MockRepository
+var A string = "test"
 
 func TestMain(m *testing.M) {
 	// mockBookRepository =

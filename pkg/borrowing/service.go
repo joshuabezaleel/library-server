@@ -2,6 +2,7 @@ package borrowing
 
 import (
 	"errors"
+	"log"
 	"time"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
@@ -56,7 +57,7 @@ func (s *service) Borrow(username string, bookCopyID string) (*Borrow, error) {
 	}
 
 	if isBorrowed {
-		return nil, errors.New("Book " + bookCopyID + "is currently being borrowed")
+		return nil, errors.New("Book " + bookCopyID + " is currently being borrowed")
 	}
 
 	newBorrow := NewBorrow(util.NewID(), userID, bookCopyID, 0, time.Now(), time.Now().AddDate(0, 0, 7), time.Time{})
@@ -69,6 +70,7 @@ func (s *service) Get(borrowID string) (*Borrow, error) {
 }
 
 func (s *service) GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*Borrow, error) {
+	log.Printf("userID WTF = %v\n", userID)
 	return s.borrowingRepository.GetByUserIDAndBookCopyID(userID, bookCopyID)
 }
 
@@ -81,14 +83,12 @@ func (s *service) Return(username string, bookCopyID string) (*Borrow, error) {
 	if err != nil {
 		return nil, err
 	}
+	// log.Printf("username WTH = %v\n", username)
+	// log.Printf("userID WTH = %v\n", userID)
 
 	borrow, err := s.GetByUserIDAndBookCopyID(userID, bookCopyID)
 	if err != nil {
 		return nil, err
-	}
-
-	if userID != borrow.UserID {
-		return nil, errors.New("User mismatch, not the one who borrowed the book")
 	}
 
 	borrow.ReturnedAt = time.Now()
