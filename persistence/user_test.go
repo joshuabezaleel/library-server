@@ -361,7 +361,7 @@ func TestUserAddFine(t *testing.T) {
 	}
 }
 
-func GetTotalFine(t *testing.T) {
+func TestGetTotalFine(t *testing.T) {
 	tt := []struct {
 		name      string
 		userID    string
