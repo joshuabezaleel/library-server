@@ -1,4 +1,4 @@
-package server
+package integrationtests
 
 import (
 	"bytes"
@@ -9,12 +9,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	util "github.com/joshuabezaleel/library-server/pkg"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 )
-
-// var bookKRepository = &book.MockRepository{}
-// var userService = &book.MockService{}
 
 func TestCreateBook(t *testing.T) {
 	initialBook := &book.Book{
@@ -53,12 +52,10 @@ func TestCreateBook(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			jsonReq, _ := json.Marshal(tc.book)
+			jsonRequest, err := json.Marshal(tc.book)
+			require.Nil(t, err)
 
-			req, err := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-			if err != nil {
-				t.Errorf("Cannot perform HTTP request: %v", err)
-			}
+			req := httptest.NewRequest("POST", "/books", bytes.NewBuffer(jsonRequest))
 
 			rr := httptest.NewRecorder()
 			srv.Router.ServeHTTP(rr, req)
@@ -67,27 +64,18 @@ func TestCreateBook(t *testing.T) {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
-				if resp.StatusCode != tc.statusCode {
-					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-				}
+				require.Equal(t, tc.statusCode, resp.StatusCode)
 				return
 			}
 
 			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				t.Fatalf("could not read response: %v", err)
-			}
+			require.Nil(t, err)
 
 			createdBook := book.Book{}
 			err = json.Unmarshal(body, &createdBook)
-			if err != nil {
-				t.Fatalf("expected a Book struct; got %s", body)
-			}
+			require.Nil(t, err)
 
-			if createdBook.ID != tc.ID {
-				t.Errorf("expected book id to be %v; got %v", createdBook.ID, tc.ID)
-			}
-
+			require.Equal(t, tc.ID, createdBook.ID)
 		})
 	}
 
@@ -121,10 +109,7 @@ func TestGetBook(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			url := fmt.Sprintf("/books" + tc.path)
 
-			req, err := http.NewRequest("GET", url, nil)
-			if err != nil {
-				t.Errorf("Cannot perform HTTP request: %v", err)
-			}
+			req := httptest.NewRequest("GET", url, nil)
 
 			rr := httptest.NewRecorder()
 			srv.Router.ServeHTTP(rr, req)
@@ -133,26 +118,18 @@ func TestGetBook(t *testing.T) {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
-				if resp.StatusCode != tc.statusCode {
-					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-				}
+				require.Equal(t, tc.statusCode, resp.StatusCode)
 				return
 			}
 
 			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				t.Fatalf("could not read response: %v", err)
-			}
+			require.Nil(t, err)
 
 			newBook := book.Book{}
 			err = json.Unmarshal(body, &newBook)
-			if err != nil {
-				t.Fatalf("expected a Book struct; got %s", body)
-			}
+			require.Nil(t, err)
 
-			if initialBook.ID != newBook.ID {
-				t.Fatalf("expected id %v; got %v", initialBook.ID, newBook.ID)
-			}
+			require.Equal(t, initialBook.ID, newBook.ID)
 		})
 	}
 
@@ -161,7 +138,6 @@ func TestGetBook(t *testing.T) {
 
 func TestUpdateBook(t *testing.T) {
 	initialBook := createBook()
-	// log.Println(initialBook.ID)
 
 	tt := []struct {
 		name         string
@@ -202,45 +178,32 @@ func TestUpdateBook(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			jsonReq, _ := json.Marshal(tc.book)
-			url := fmt.Sprintf("/books" + tc.path)
-			// log.Println(tc.book)
-			// log.Println(url)
+			jsonRequest, err := json.Marshal(tc.book)
+			require.Nil(t, err)
 
-			req, err := http.NewRequest("PUT", url, bytes.NewBuffer(jsonReq))
-			if err != nil {
-				t.Errorf("Cannot perform HTTP request: %v", err)
-			}
+			url := fmt.Sprintf("/books" + tc.path)
+
+			req := httptest.NewRequest("PUT", url, bytes.NewBuffer(jsonRequest))
 
 			rr := httptest.NewRecorder()
 			srv.Router.ServeHTTP(rr, req)
-			// log.Println(rr.Body.String())
 
 			resp := rr.Result()
-			// log.Println(resp.Body)
 			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
-				if resp.StatusCode != tc.statusCode {
-					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-				}
+				require.Equal(t, tc.statusCode, resp.StatusCode)
 				return
 			}
 
 			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				t.Fatalf("could not read response: %v", err)
-			}
+			require.Nil(t, err)
 
 			updatedBook := book.Book{}
 			err = json.Unmarshal(body, &updatedBook)
-			if err != nil {
-				t.Fatalf("expected a Book struct; got %s", body)
-			}
+			require.Nil(t, err)
 
-			if updatedBook.Title != tc.title {
-				t.Errorf("expected title to be %v; got %v", tc.title, updatedBook.Title)
-			}
+			require.Equal(t, tc.title, updatedBook.Title)
 		})
 	}
 
@@ -274,10 +237,7 @@ func TestDeleteBook(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			url := fmt.Sprintf("/books" + tc.path)
 
-			req, err := http.NewRequest("DELETE", url, nil)
-			if err != nil {
-				t.Errorf("Cannot perform HTTP request: %v", err)
-			}
+			req := httptest.NewRequest("DELETE", url, nil)
 
 			rr := httptest.NewRecorder()
 			srv.Router.ServeHTTP(rr, req)
@@ -286,58 +246,11 @@ func TestDeleteBook(t *testing.T) {
 			defer resp.Body.Close()
 
 			if resp.StatusCode != http.StatusOK {
-				if resp.StatusCode != tc.statusCode {
-					t.Errorf("expected %v; got %v", tc.statusCode, resp.Status)
-				}
+				require.Equal(t, tc.statusCode, resp.StatusCode)
 				return
 			}
-
-			// body, err := ioutil.ReadAll(resp.Body)
-			// if err != nil {
-			// 	t.Fatalf("could not read response: %v", err)
-			// }
-
-			// msg := string(body)
-			// if msg :=
-			// if initialBook.ID != newBook.ID {
-			// 	t.Fatalf("expected id %v; got %v", initialBook.ID, newBook.ID)
-			// }
 		})
 	}
 
 	repository.CleanUp()
 }
-
-// func TestGetMock(t *testing.T) {
-// 	bookService := &book.MockService{}
-// 	authService := &auth.MockService{}
-
-// 	bookHandler := bookHandler{bookService, authService}
-
-// 	book := &book.Book{
-// 		ID:    util.NewID(),
-// 		Title: "title",
-// 	}
-
-// 	url := fmt.Sprintf("/books/" + "invalidbookID")
-// 	req := httptest.NewRequest("GET", url, nil)
-// 	w := httptest.NewRecorder()
-// 	bookHandler.getBook(w, req)
-// 	require.Equal(t, http.StatusBadRequest, w.Code)
-
-// 	bookService.On("Get", book.ID).Return(book, nil)
-// 	req = httptest.NewRequest("GET", url, nil)
-// 	req = mux.SetURLVars(req, map[string]string{"bookID": book.ID})
-// 	w = httptest.NewRecorder()
-// 	bookHandler.getBook(w, req)
-// 	require.Equal(t, http.StatusOK, w.Code)
-
-// 	wrongID := util.NewID()
-// 	bookService.On("Get", wrongID).Return(nil, errors.New("another error"))
-// 	url = fmt.Sprintf("/books/" + wrongID)
-// 	req = httptest.NewRequest("GET", url, nil)
-// 	req = mux.SetURLVars(req, map[string]string{"bookID": wrongID})
-// 	w = httptest.NewRecorder()
-// 	bookHandler.getBook(w, req)
-// 	require.Equal(t, http.StatusInternalServerError, w.Code)
-// }

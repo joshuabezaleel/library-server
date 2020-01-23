@@ -2,7 +2,6 @@ package borrowing
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
@@ -70,7 +69,6 @@ func (s *service) Get(borrowID string) (*Borrow, error) {
 }
 
 func (s *service) GetByUserIDAndBookCopyID(userID string, bookCopyID string) (*Borrow, error) {
-	log.Printf("userID WTF = %v\n", userID)
 	return s.borrowingRepository.GetByUserIDAndBookCopyID(userID, bookCopyID)
 }
 
@@ -83,8 +81,6 @@ func (s *service) Return(username string, bookCopyID string) (*Borrow, error) {
 	if err != nil {
 		return nil, err
 	}
-	// log.Printf("username WTH = %v\n", username)
-	// log.Printf("userID WTH = %v\n", userID)
 
 	borrow, err := s.GetByUserIDAndBookCopyID(userID, bookCopyID)
 	if err != nil {
