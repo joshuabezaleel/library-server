@@ -4,9 +4,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/joho/godotenv"
-
-	"github.com/joshuabezaleel/library-server/persistence"
 	"github.com/joshuabezaleel/library-server/pkg/auth"
 	"github.com/joshuabezaleel/library-server/pkg/borrowing"
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
@@ -14,38 +11,36 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
 )
 
-var repository *persistence.Repository
-var srv *Server
+var (
+	authTestingHandler     authHandler
+	bookTestingHandler     bookHandler
+	borrowTestingHandler   borrowingHandler
+	bookCopyTestingHandler bookCopyHandler
+	userTestingHandler     userHandler
 
-const (
-	deployment = "TESTING"
+	authService     *auth.MockService
+	borrowService   *borrowing.MockService
+	bookService     *book.MockService
+	bookCopyService *bookcopy.MockService
+	userService     *user.MockService
 )
 
 func TestMain(m *testing.M) {
-	err := godotenv.Load("../build/.env")
-	if err != nil {
-		panic(err)
-	}
-	repository = persistence.NewRepository(deployment)
-	defer repository.DB.Close()
+	// Initiating mock services.
+	authService = &auth.MockService{}
+	borrowService = &borrowing.MockService{}
+	bookService = &book.MockService{}
+	bookCopyService = &bookcopy.MockService{}
+	userService = &user.MockService{}
 
-	// repository.EnsureDatabaseExists()
-	repository.EnsureTableExists()
-
-	// Setting up domain services.
-	userService := user.NewUserService(repository.UserRepository)
-	authService := auth.NewAuthService(repository.AuthRepository, userService)
-	bookService := book.NewBookService(repository.BookRepository)
-	bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
-	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
-
-	srv = NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
-	// srv.Router.SkipClean(true)
-	go srv.Run(deployment)
+	// Initiating handlers with dependency to mock service.
+	authTestingHandler = authHandler{authService}
+	borrowTestingHandler = borrowingHandler{borrowService, authService}
+	bookTestingHandler = bookHandler{bookService, authService}
+	bookCopyTestingHandler = bookCopyHandler{bookCopyService, authService}
+	userTestingHandler = userHandler{userService, authService}
 
 	code := m.Run()
-
-	repository.CleanUp()
 
 	os.Exit(code)
 }
