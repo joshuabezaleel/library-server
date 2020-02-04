@@ -1,8 +1,11 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,6 +17,75 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 )
 
+func TestBookCreate(t *testing.T) {
+	initialBook := &book.Book{
+		ID:    util.NewID(),
+		Title: "title",
+	}
+
+	failedBook := &book.Book{
+		ID: util.NewID(),
+	}
+
+	tt := []struct {
+		name              string
+		requestPayload    interface{}
+		mockReturnPayload interface{}
+		ID                string
+		statusCode        int
+		err               error
+	}{
+		{
+			name:              "success creating a valid Book",
+			requestPayload:    initialBook,
+			mockReturnPayload: initialBook,
+			ID:                initialBook.ID,
+			statusCode:        http.StatusCreated,
+			err:               nil,
+		},
+		{
+			name:              "invalid request payload",
+			requestPayload:    "a plain string, not a Book",
+			mockReturnPayload: nil,
+			ID:                "",
+			statusCode:        http.StatusBadRequest,
+			err:               nil,
+		},
+		{
+			name:              "failed creating a Book",
+			requestPayload:    failedBook,
+			mockReturnPayload: nil,
+			ID:                failedBook.ID,
+			statusCode:        http.StatusInternalServerError,
+			err:               errors.New("Books not found"),
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookService.On("Create", tc.requestPayload).Return(tc.mockReturnPayload, tc.err)
+			log.Println(tc.err)
+
+			url := fmt.Sprintf("/books")
+
+			reqByte, err := json.Marshal(tc.requestPayload)
+			require.Nil(t, err)
+
+			req := httptest.NewRequest("POST", url, bytes.NewReader(reqByte))
+
+			if tc.statusCode != http.StatusBadRequest {
+				req = mux.SetURLVars(req, map[string]string{"bookID": tc.ID})
+			}
+
+			w := httptest.NewRecorder()
+
+			bookTestingHandler.createBook(w, req)
+
+			require.Equal(t, tc.statusCode, w.Code)
+		})
+	}
+}
+
 func TestBookGet(t *testing.T) {
 	initialBook := &book.Book{
 		ID:    util.NewID(),
@@ -22,28 +94,28 @@ func TestBookGet(t *testing.T) {
 
 	tt := []struct {
 		name              string
-		returnMockPayload interface{}
+		mockReturnPayload interface{}
 		ID                string
 		statusCode        int
 		err               error
 	}{
 		{
 			name:              "success retrieving a valid book",
-			returnMockPayload: initialBook,
+			mockReturnPayload: initialBook,
 			ID:                initialBook.ID,
 			statusCode:        http.StatusOK,
 			err:               nil,
 		},
 		{
 			name:              "invalid path",
-			returnMockPayload: nil,
+			mockReturnPayload: nil,
 			ID:                "invalidBookID",
 			statusCode:        http.StatusBadRequest,
 			err:               nil,
 		},
 		{
 			name:              "book doesn't exist",
-			returnMockPayload: nil,
+			mockReturnPayload: nil,
 			ID:                util.NewID(),
 			statusCode:        http.StatusInternalServerError,
 			err:               errors.New("Books not found"),
@@ -52,7 +124,7 @@ func TestBookGet(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			bookService.On("Get", tc.ID).Return(tc.returnMockPayload, tc.err)
+			bookService.On("Get", tc.ID).Return(tc.mockReturnPayload, tc.err)
 
 			url := fmt.Sprintf("/books/" + tc.ID)
 
