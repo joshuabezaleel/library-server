@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -64,7 +63,6 @@ func TestBookCreate(t *testing.T) {
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
 			bookService.On("Create", tc.requestPayload).Return(tc.mockReturnPayload, tc.err)
-			log.Println(tc.err)
 
 			url := fmt.Sprintf("/books")
 

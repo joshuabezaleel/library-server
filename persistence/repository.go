@@ -88,13 +88,6 @@ func NewRepository(env string) *Repository {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
 	basepath = strings.TrimSuffix(basepath, "/persistence")
-	fmt.Println(basepath)
-
-	// dir, err := os.Getwd()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println(dir)
 
 	err := godotenv.Load(basepath + "/build/.env")
 	if err != nil {
