@@ -28,21 +28,29 @@ func TestCreateBook(t *testing.T) {
 		errorMessage       string
 	}{
 		{
-			name:               "success creating a Book by Librarian",
+			name:               "success creating a Book by User Librarian",
 			requestPayload:     initialBook,
 			ID:                 initialBook.ID,
 			authorizationToken: userLibrarianToken,
 			statusCode:         http.StatusCreated,
 			errorMessage:       "",
 		},
-		// {
-		// 	name:               "failed creating a Book by Student",
-		// 	requestPayload:     initialBook,
-		// 	ID:                 initialBook.ID,
-		// 	authorizationToken: userStudentToken,
-		// 	statusCode:         http.StatusUnauthorized,
-		// 	errorMessage:       "",
-		// },
+		{
+			name:               "failed authorization when creating a Book by User Student",
+			requestPayload:     initialBook,
+			ID:                 initialBook.ID,
+			authorizationToken: userStudentToken,
+			statusCode:         http.StatusUnauthorized,
+			errorMessage:       "",
+		},
+		{
+			name:               "request payload is not a Book",
+			requestPayload:     "plain string, not a Book",
+			ID:                 "",
+			authorizationToken: userLibrarianToken,
+			statusCode:         http.StatusBadRequest,
+			errorMessage:       "",
+		},
 	}
 
 	for _, tc := range tt {
