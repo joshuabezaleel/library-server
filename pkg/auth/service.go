@@ -102,13 +102,13 @@ func (s *service) CheckLibrarian(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		username := r.Context().Value("username").(string)
 
-		isLibrarian, err := s.userService.CheckLibrarian(username)
+		role, err := s.userService.GetRole(username)
 		if err != nil {
 			respondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		if !isLibrarian {
+		if role != "librarian" {
 			respondWithError(w, http.StatusUnauthorized, "You are not authorized as a librarian to perform this action")
 		} else {
 			next(w, r)
