@@ -30,27 +30,6 @@ func (_m *MockService) AddFine(userID string, fine uint32) (uint32, error) {
 	return r0, r1
 }
 
-// CheckLibrarian provides a mock function with given fields: username
-func (_m *MockService) CheckLibrarian(username string) (bool, error) {
-	ret := _m.Called(username)
-
-	var r0 bool
-	if rf, ok := ret.Get(0).(func(string) bool); ok {
-		r0 = rf(username)
-	} else {
-		r0 = ret.Get(0).(bool)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(username)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // Create provides a mock function with given fields: user
 func (_m *MockService) Create(user *User) (*User, error) {
 	ret := _m.Called(user)
@@ -104,6 +83,27 @@ func (_m *MockService) Get(userID string) (*User, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetRole provides a mock function with given fields: username
+func (_m *MockService) GetRole(username string) (string, error) {
+	ret := _m.Called(username)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(username)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(username)
 	} else {
 		r1 = ret.Error(1)
 	}

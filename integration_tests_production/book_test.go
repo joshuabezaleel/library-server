@@ -35,6 +35,14 @@ func TestCreateBook(t *testing.T) {
 			statusCode:         http.StatusCreated,
 			errorMessage:       "",
 		},
+		// {
+		// 	name:               "failed creating a Book by Student",
+		// 	requestPayload:     initialBook,
+		// 	ID:                 initialBook.ID,
+		// 	authorizationToken: userStudentToken,
+		// 	statusCode:         http.StatusUnauthorized,
+		// 	errorMessage:       "",
+		// },
 	}
 
 	for _, tc := range tt {

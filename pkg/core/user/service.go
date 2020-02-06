@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -19,7 +18,7 @@ type Service interface {
 
 	// Other operations.
 	GetUserIDByUsername(username string) (string, error)
-	CheckLibrarian(username string) (bool, error)
+	GetRole(username string) (string, error)
 	AddFine(userID string, fine uint32) (uint32, error)
 	GetTotalFine(userID string) (uint32, error)
 }
@@ -66,22 +65,18 @@ func (s *service) GetUserIDByUsername(username string) (string, error) {
 	return s.userRepository.GetIDByUsername(username)
 }
 
-func (s *service) CheckLibrarian(username string) (bool, error) {
+func (s *service) GetRole(username string) (string, error) {
 	userID, err := s.GetUserIDByUsername(username)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
 	role, err := s.userRepository.GetRole(userID)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	if role != "librarian" {
-		return false, errors.New("You are not authorized as a librarian to perform this action")
-	}
-
-	return true, nil
+	return role, nil
 }
 
 func (s *service) AddFine(userID string, fine uint32) (uint32, error) {

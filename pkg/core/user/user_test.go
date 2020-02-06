@@ -97,12 +97,12 @@ func TestGetUserIDByUsername(t *testing.T) {
 	require.Equal(t, user.ID, userID)
 }
 
-func TestCheckLibrarian(t *testing.T) {
+func TestGetRole(t *testing.T) {
 	tt := []struct {
-		name        string
-		user        *User
-		isLibrarian bool
-		err         error
+		name         string
+		user         *User
+		expectedRole string
+		err          error
 	}{
 		{
 			name: "user with role librarian",
@@ -111,8 +111,8 @@ func TestCheckLibrarian(t *testing.T) {
 				Username: "librarian1",
 				Role:     "librarian",
 			},
-			isLibrarian: true,
-			err:         nil,
+			expectedRole: "librarian",
+			err:          nil,
 		},
 		{
 			name: "user who is not a librarian",
@@ -121,8 +121,8 @@ func TestCheckLibrarian(t *testing.T) {
 				Username: "student1",
 				Role:     "student",
 			},
-			isLibrarian: false,
-			err:         errors.New("You are not authorized as a librarian to perform this action"),
+			expectedRole: "student",
+			err:          errors.New("You are not authorized as a librarian to perform this action"),
 		},
 	}
 
@@ -132,9 +132,9 @@ func TestCheckLibrarian(t *testing.T) {
 
 			userRepository.On("GetRole", tc.user.ID).Return(tc.user.Role, nil)
 
-			isLibrarian, err := userService.CheckLibrarian(tc.user.Username)
+			role, err := userService.GetRole(tc.user.Username)
 
-			require.Equal(t, tc.isLibrarian, isLibrarian)
+			require.Equal(t, tc.expectedRole, role)
 			require.Equal(t, tc.err, err)
 		})
 	}
@@ -143,14 +143,14 @@ func TestCheckLibrarian(t *testing.T) {
 	userRepository.On("GetIDByUsername", "random username").Return("random user ID", nil)
 	userRepository.On("GetRole", "random user ID").Return("", errors.New("another error"))
 
-	_, err := userService.CheckLibrarian("random username")
+	_, err := userService.GetRole("random username")
 	require.NotNil(t, err)
 
 	// Testing error on GetIDByUsername
 	userRepository.On("GetIDByUsername", "random username 2").Return("", errors.New("another error"))
 	// userRepository.On("CheckLibrarian", "")
 
-	_, err = userService.CheckLibrarian("random username 2")
+	_, err = userService.GetRole("random username 2")
 	require.NotNil(t, err)
 }
 
