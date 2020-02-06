@@ -51,6 +51,14 @@ func TestCreateBook(t *testing.T) {
 			statusCode:         http.StatusBadRequest,
 			errorMessage:       "",
 		},
+		{
+			name:               "made a Book with the same ID",
+			requestPayload:     initialBook,
+			ID:                 initialBook.ID,
+			authorizationToken: userLibrarianToken,
+			statusCode:         http.StatusInternalServerError,
+			errorMessage:       "",
+		},
 	}
 
 	for _, tc := range tt {

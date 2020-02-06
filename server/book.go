@@ -37,7 +37,6 @@ func (handler *bookHandler) registerRouter(deployment string, router *mux.Router
 
 }
 
-// CreateBook handles the creation of a Book.
 func (handler *bookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 	book := book.Book{}
 
