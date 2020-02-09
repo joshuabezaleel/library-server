@@ -19,8 +19,17 @@ func createBook() *book.Book {
 		Title: "initial title",
 	}
 
-	jsonReq, _ := json.Marshal(initialBook)
-	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
+	jsonReq, err := json.Marshal(initialBook)
+	if err != nil {
+		panic(err)
+	}
+
+	req, err := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
+	if err != nil {
+		panic(err)
+	}
+
+	req.Header.Add("Authorization", userLibrarianToken)
 	rr := httptest.NewRecorder()
 	srv.Router.ServeHTTP(rr, req)
 
