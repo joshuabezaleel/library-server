@@ -19,17 +19,10 @@ func createBook() *book.Book {
 		Title: "initial title",
 	}
 
-	jsonReq, err := json.Marshal(initialBook)
-	if err != nil {
-		panic(err)
-	}
-
-	req, err := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
-	if err != nil {
-		panic(err)
-	}
-
+	jsonReq, _ := json.Marshal(initialBook)
+	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
 	req.Header.Add("Authorization", userLibrarianToken)
+
 	rr := httptest.NewRecorder()
 	srv.Router.ServeHTTP(rr, req)
 
@@ -44,6 +37,8 @@ func createBookCopy() *bookcopy.BookCopy {
 
 	jsonReq, _ := json.Marshal(initialBook)
 	req, _ := http.NewRequest("POST", "/books", bytes.NewBuffer(jsonReq))
+	req.Header.Add("Authorization", userLibrarianToken)
+
 	rr := httptest.NewRecorder()
 	srv.Router.ServeHTTP(rr, req)
 
@@ -55,6 +50,8 @@ func createBookCopy() *bookcopy.BookCopy {
 
 	jsonReq, _ = json.Marshal(initialBookCopy)
 	req, _ = http.NewRequest("POST", "/books/"+initialBook.ID+"/bookcopies", bytes.NewBuffer(jsonReq))
+	req.Header.Add("Authorization", userLibrarianToken)
+
 	rr = httptest.NewRecorder()
 	srv.Router.ServeHTTP(rr, req)
 

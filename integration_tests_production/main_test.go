@@ -18,8 +18,6 @@ import (
 var (
 	repository         *persistence.Repository
 	srv                *server.Server
-	userStudent        *user.User
-	userLibrarian      *user.User
 	userStudentToken   string
 	userLibrarianToken string
 )
@@ -50,8 +48,8 @@ func TestMain(m *testing.M) {
 	go srv.Run(deployment)
 
 	// Create users with different roles and login.
-	userStudent = createUserStudent()
-	userLibrarian = createUserLibrarian()
+	userStudent := createUserStudent()
+	userLibrarian := createUserLibrarian()
 
 	userStudentToken = "Bearer " + login(userStudent)
 	userLibrarianToken = "Bearer " + login(userLibrarian)

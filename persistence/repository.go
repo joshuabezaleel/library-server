@@ -148,8 +148,8 @@ func (repo *Repository) EnsureTableExists() {
 // CleanUp make sure that all of the data from all of the
 // tables are deleted.
 func (repo *Repository) CleanUp() {
-	repo.DB.Exec("TRUNCATE books")
-	repo.DB.Exec("TRUNCATE bookcopies")
-	repo.DB.Exec("TRUNCATE borrows")
-	repo.DB.Exec("TRUNCATE users")
+	repo.DB.Exec("DELETE FROM books")
+	repo.DB.Exec("DELETE FROM bookcopies")
+	repo.DB.Exec("DELETE FROM users")
+	repo.DB.Exec("DELETE FROM borrows")
 }
