@@ -240,7 +240,7 @@ func TestBookDelete(t *testing.T) {
 		err               error
 	}{
 		{
-			name:              "success retrieving a valid book",
+			name:              "success deleting a valid book",
 			mockReturnPayload: initialBook,
 			ID:                initialBook.ID,
 			statusCode:        http.StatusOK,
