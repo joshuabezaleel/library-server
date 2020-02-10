@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/joshuabezaleel/library-server/pkg/auth"
@@ -66,6 +67,7 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
+		log.Println("here 1")
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
@@ -74,6 +76,7 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {
+		log.Println("here 2")
 		respondWithError(w, http.StatusBadRequest, "Invalid book ID")
 		return
 	}
@@ -81,6 +84,7 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 
 	updatedBook, err := handler.bookService.Update(&book)
 	if err != nil {
+		log.Println("here 3")
 		respondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
