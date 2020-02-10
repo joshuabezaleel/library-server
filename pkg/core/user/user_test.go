@@ -122,7 +122,7 @@ func TestGetRole(t *testing.T) {
 				Role:     "student",
 			},
 			expectedRole: "student",
-			err:          errors.New("You are not authorized as a librarian to perform this action"),
+			err:          nil,
 		},
 	}
 
