@@ -15,7 +15,7 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/user"
 )
 
-func TestCreateUser(t *testing.T) {
+func TestUserCreate(t *testing.T) {
 	initialUser := &user.User{
 		ID: util.NewID(),
 	}
@@ -82,7 +82,7 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
-func TestGetUser(t *testing.T) {
+func TestUserGet(t *testing.T) {
 	initialUser := userLibrarian
 
 	tt := []struct {
@@ -134,11 +134,11 @@ func TestGetUser(t *testing.T) {
 	}
 }
 
-func TestUpdateUser(t *testing.T) {
-	librarian := userLibrarian
+func TestUserUpdate(t *testing.T) {
+	librarian := createUserLibrarian("userLibrarianForTestUpdate")
 	librarianAuthorizationToken := "Bearer " + login(librarian)
 
-	student := userStudent
+	student := createUserStudent("userStudentForTestUpdate")
 	studentAuthorizationToken := "Bearer " + login(student)
 
 	tt := []struct {
@@ -159,6 +159,16 @@ func TestUpdateUser(t *testing.T) {
 			authorizationToken: librarianAuthorizationToken,
 			expectedUsername:   "edited username",
 			statusCode:         http.StatusOK,
+			errorMessage:       "",
+		},
+		{
+			name: "failed authorization on another User",
+			ID:   librarian.ID,
+			requestPayload: &user.User{
+				Username: "edited username",
+			},
+			authorizationToken: studentAuthorizationToken,
+			statusCode:         http.StatusUnauthorized,
 			errorMessage:       "",
 		},
 		{
@@ -210,6 +220,54 @@ func TestUpdateUser(t *testing.T) {
 			require.Nil(t, err)
 
 			require.Equal(t, tc.expectedUsername, updatedUser.Username)
+		})
+	}
+}
+
+func TestUserDelete(t *testing.T) {
+	initialUser := createUserLibrarian("userLibrarianForTestDelete")
+	initialUserAuthorizationToken := login(initialUser)
+
+	tt := []struct {
+		name               string
+		ID                 string
+		authorizationToken string
+		statusCode         int
+		errorMessage       string
+	}{
+		{
+			name:               "success deleting a valid User",
+			ID:                 initialUser.ID,
+			authorizationToken: initialUserAuthorizationToken,
+			statusCode:         http.StatusOK,
+			errorMessage:       "",
+		},
+		{
+			name:               "invalid User ID path",
+			ID:                 util.NewID(),
+			authorizationToken: initialUserAuthorizationToken,
+			statusCode:         http.StatusInternalServerError,
+			errorMessage:       "",
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			url := fmt.Sprintf("/users/" + tc.ID)
+
+			req := httptest.NewRequest("DELETE", url, nil)
+			req.Header.Add("Authorization", tc.authorizationToken)
+
+			rr := httptest.NewRecorder()
+			srv.Router.ServeHTTP(rr, req)
+
+			resp := rr.Result()
+			defer resp.Body.Close()
+
+			if resp.StatusCode != http.StatusOK {
+				require.Equal(t, tc.statusCode, resp.StatusCode)
+				return
+			}
 		})
 	}
 }

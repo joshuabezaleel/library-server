@@ -50,8 +50,8 @@ func TestMain(m *testing.M) {
 	go srv.Run(deployment)
 
 	// Create users with different roles and login.
-	userStudent = createUserStudent()
-	userLibrarian = createUserLibrarian()
+	userStudent = createUserStudent("globalUserStudent")
+	userLibrarian = createUserLibrarian("globalUserLibrarian")
 
 	userStudentToken = "Bearer " + login(userStudent)
 	userLibrarianToken = "Bearer " + login(userLibrarian)

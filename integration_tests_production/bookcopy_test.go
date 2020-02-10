@@ -16,7 +16,7 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
 )
 
-func TestCreateBookCopy(t *testing.T) {
+func TestBookCopyCreate(t *testing.T) {
 	initialBook := createBook()
 
 	initialBookCopy := &bookcopy.BookCopy{
@@ -98,7 +98,7 @@ func TestCreateBookCopy(t *testing.T) {
 	}
 }
 
-func TestGetBookCopy(t *testing.T) {
+func TestBookCopyGet(t *testing.T) {
 	initialBookCopy := createBookCopy()
 
 	tt := []struct {
@@ -150,7 +150,7 @@ func TestGetBookCopy(t *testing.T) {
 	}
 }
 
-func TestUpdateBookCopy(t *testing.T) {
+func TestBookCopyUpdate(t *testing.T) {
 	initialBookCopy := createBookCopy()
 
 	tt := []struct {
@@ -237,7 +237,7 @@ func TestUpdateBookCopy(t *testing.T) {
 	}
 }
 
-func TestDeleteBookCopy(t *testing.T) {
+func TestBookCopyDelete(t *testing.T) {
 	initialBookCopy := createBookCopy()
 
 	tt := []struct {

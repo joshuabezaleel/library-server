@@ -58,10 +58,10 @@ func createBookCopy() *bookcopy.BookCopy {
 	return initialBookCopy
 }
 
-func createUserStudent() *user.User {
+func createUserStudent(username string) *user.User {
 	initialUserStudent := &user.User{
 		ID:       util.NewID(),
-		Username: "studentForTesting",
+		Username: username,
 		Password: "student",
 		Role:     "student",
 	}
@@ -74,10 +74,10 @@ func createUserStudent() *user.User {
 	return initialUserStudent
 }
 
-func createUserLibrarian() *user.User {
+func createUserLibrarian(username string) *user.User {
 	initialUserLibrarian := &user.User{
 		ID:       util.NewID(),
-		Username: "librarianForTesting",
+		Username: username,
 		Password: "librarian",
 		Role:     "librarian",
 	}

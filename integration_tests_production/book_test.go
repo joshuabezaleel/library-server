@@ -15,7 +15,7 @@ import (
 	"github.com/joshuabezaleel/library-server/pkg/core/book"
 )
 
-func TestCreateBook(t *testing.T) {
+func TestBookCreate(t *testing.T) {
 	initialBook := &book.Book{
 		ID: util.NewID(),
 	}
@@ -93,7 +93,7 @@ func TestCreateBook(t *testing.T) {
 	}
 }
 
-func TestGetBook(t *testing.T) {
+func TestBookGet(t *testing.T) {
 	initialBook := createBook()
 
 	tt := []struct {
@@ -145,7 +145,7 @@ func TestGetBook(t *testing.T) {
 	}
 }
 
-func TestUpdateBook(t *testing.T) {
+func TestBookUpdate(t *testing.T) {
 	initialBook := createBook()
 
 	tt := []struct {
@@ -230,7 +230,7 @@ func TestUpdateBook(t *testing.T) {
 	}
 }
 
-func TestDeleteBook(t *testing.T) {
+func TestBookDelete(t *testing.T) {
 	initialBook := createBook()
 
 	tt := []struct {
