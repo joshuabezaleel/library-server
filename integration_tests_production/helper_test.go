@@ -61,7 +61,7 @@ func createBookCopy() *bookcopy.BookCopy {
 func createUserStudent() *user.User {
 	initialUserStudent := &user.User{
 		ID:       util.NewID(),
-		Username: "student",
+		Username: "studentForTesting",
 		Password: "student",
 		Role:     "student",
 	}
@@ -77,7 +77,7 @@ func createUserStudent() *user.User {
 func createUserLibrarian() *user.User {
 	initialUserLibrarian := &user.User{
 		ID:       util.NewID(),
-		Username: "librarian",
+		Username: "librarianForTesting",
 		Password: "librarian",
 		Role:     "librarian",
 	}

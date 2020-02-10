@@ -120,14 +120,20 @@ func (s *service) CheckSameUser(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		usernameLoggedIn := r.Context().Value("username").(string)
 
-		vars := mux.Vars(r)
-		username, ok := vars["username"]
-		if !ok {
-			respondWithError(w, http.StatusBadRequest, "Username not found")
+		IDLoggedIn, err := s.userService.GetUserIDByUsername(usernameLoggedIn)
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		if usernameLoggedIn != username {
+		vars := mux.Vars(r)
+		userID, ok := vars["userID"]
+		if !ok {
+			respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+			return
+		}
+
+		if IDLoggedIn != userID {
 			respondWithError(w, http.StatusUnauthorized, "You are not authorized to perform this action")
 		} else {
 			next(w, r)
