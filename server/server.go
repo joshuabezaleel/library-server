@@ -27,7 +27,7 @@ type Server struct {
 
 // NewServer returns a new HTTP server
 // with all of the necessary dependencies.
-func NewServer(deployment string, authService auth.Service, bookService book.Service, bookCopyService bookcopy.Service, userService user.Service, borrowService borrowing.Service) *Server {
+func NewServer(authService auth.Service, bookService book.Service, bookCopyService bookcopy.Service, userService user.Service, borrowService borrowing.Service) *Server {
 	server := &Server{
 		authService:     authService,
 		bookService:     bookService,
@@ -45,10 +45,10 @@ func NewServer(deployment string, authService auth.Service, bookService book.Ser
 	router := mux.NewRouter()
 
 	authHandler.registerRouter(router)
-	bookHandler.registerRouter(deployment, router)
-	bookCopyHandler.registerRouter(deployment, router)
-	userHandler.registerRouter(deployment, router)
-	borrowHandler.registerRouter(deployment, router)
+	bookHandler.registerRouter(router)
+	bookCopyHandler.registerRouter(router)
+	userHandler.registerRouter(router)
+	borrowHandler.registerRouter(router)
 
 	server.Router = router
 
@@ -56,15 +56,10 @@ func NewServer(deployment string, authService auth.Service, bookService book.Ser
 }
 
 // Run runs the HTTP server with the port and the router.
-func (srv *Server) Run(deployment string) {
+func (srv *Server) Run() {
 	var port string
-	if deployment == "PRODUCTION" {
-		port = ":" + os.Getenv("SERVER_PORT")
-		fmt.Println("Server is running ...")
-	} else if deployment == "TESTING" {
-		port = ":" + os.Getenv("SERVER_TESTING_PORT")
-		fmt.Println("Server for testing is running ...")
-	}
+	port = ":" + os.Getenv("SERVER_PORT")
+	fmt.Println("Server is running ...")
 
 	err := http.ListenAndServe(port, srv.Router)
 	if err != nil {

@@ -26,8 +26,8 @@ func main() {
 	bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
 	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
-	srv := server.NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
-	srv.Run(deployment)
+	srv := server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
+	srv.Run()
 
 	repository.DB.Close()
 }

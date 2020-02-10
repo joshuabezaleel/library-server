@@ -15,24 +15,14 @@ type userHandler struct {
 	authService auth.Service
 }
 
-func (handler *userHandler) registerRouter(deployment string, router *mux.Router) {
-	if deployment == "PRODUCTION" {
-		// CRUD endpoints.
-		router.HandleFunc("/users", handler.createUser).Methods("POST")
-		router.HandleFunc("/users/{userID}", handler.getUser).Methods("GET")
-		router.HandleFunc("/users/{userID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckSameUser(handler.updateUser))).Methods("PUT")
-		router.HandleFunc("/users/{userID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckSameUser(handler.deleteUser))).Methods("DELETE")
+func (handler *userHandler) registerRouter(router *mux.Router) {
+	// CRUD endpoints.
+	router.HandleFunc("/users", handler.createUser).Methods("POST")
+	router.HandleFunc("/users/{userID}", handler.getUser).Methods("GET")
+	router.HandleFunc("/users/{userID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckSameUser(handler.updateUser))).Methods("PUT")
+	router.HandleFunc("/users/{userID}", handler.authService.CheckLoggedInMiddleware(handler.authService.CheckSameUser(handler.deleteUser))).Methods("DELETE")
 
-		// Other endpoints.
-	} else if deployment == "TESTING" {
-		// CRUD endpoints.
-		router.HandleFunc("/users", handler.createUser).Methods("POST")
-		router.HandleFunc("/users/{userID}", handler.getUser).Methods("GET")
-		router.HandleFunc("/users/{userID}", handler.updateUser).Methods("PUT")
-		router.HandleFunc("/users/{userID}", handler.deleteUser).Methods("DELETE")
-
-		// Other endpoints.
-	}
+	// Other endpoints.
 }
 
 func (handler *userHandler) createUser(w http.ResponseWriter, r *http.Request) {

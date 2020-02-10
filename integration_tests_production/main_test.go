@@ -24,16 +24,12 @@ var (
 	userLibrarianToken string
 )
 
-const (
-	deployment = "PRODUCTION"
-)
-
 func TestMain(m *testing.M) {
 	err := godotenv.Load("../build/.env")
 	if err != nil {
 		panic(err)
 	}
-	repository = persistence.NewRepository(deployment)
+	repository = persistence.NewRepository("PRODUCTION")
 	defer repository.DB.Close()
 
 	repository.EnsureTableExists()
@@ -45,9 +41,9 @@ func TestMain(m *testing.M) {
 	bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
 	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
-	srv = server.NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
+	srv = server.NewServer(authService, bookService, bookCopyService, userService, borrowService)
 
-	go srv.Run(deployment)
+	go srv.Run()
 
 	// Create users with different roles and login.
 	userStudent = createUserStudent("globalUserStudent")

@@ -7,11 +7,6 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/joshuabezaleel/library-server/persistence"
-	"github.com/joshuabezaleel/library-server/pkg/auth"
-	"github.com/joshuabezaleel/library-server/pkg/borrowing"
-	"github.com/joshuabezaleel/library-server/pkg/core/book"
-	"github.com/joshuabezaleel/library-server/pkg/core/bookcopy"
-	"github.com/joshuabezaleel/library-server/pkg/core/user"
 	"github.com/joshuabezaleel/library-server/server"
 )
 
@@ -33,15 +28,15 @@ func TestMain(m *testing.M) {
 	repository.EnsureTableExists()
 
 	// Setting up domain services.
-	userService := user.NewUserService(repository.UserRepository)
-	authService := auth.NewAuthService(repository.AuthRepository, userService)
-	bookService := book.NewBookService(repository.BookRepository)
-	bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
-	borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
+	// userService := user.NewUserService(repository.UserRepository)
+	// authService := auth.NewAuthService(repository.AuthRepository, userService)
+	// bookService := book.NewBookService(repository.BookRepository)
+	// bookCopyService := bookcopy.NewBookCopyService(repository.BookCopyRepository, bookService)
+	// borrowService := borrowing.NewBorrowingService(repository.BorrowRepository, userService, bookCopyService)
 
-	srv = server.NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
+	// srv = server.NewServer(deployment, authService, bookService, bookCopyService, userService, borrowService)
 
-	go srv.Run(deployment)
+	// go srv.Run(deployment)
 
 	code := m.Run()
 
