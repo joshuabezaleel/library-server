@@ -179,6 +179,14 @@ func TestBookUpdate(t *testing.T) {
 			err:               nil,
 		},
 		{
+			name:              "request payload is not a Book",
+			requestPayload:    "a plain string",
+			mockReturnPayload: nil,
+			ID:                initialBook.ID,
+			statusCode:        http.StatusBadRequest,
+			err:               nil,
+		},
+		{
 			name:              "failed updating a Book",
 			requestPayload:    failedBook,
 			mockReturnPayload: nil,
