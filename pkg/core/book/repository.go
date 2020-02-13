@@ -9,4 +9,8 @@ type Repository interface {
 	Delete(bookID string) error
 
 	// Other operations.
+	GetSubjectIDs(subjects []string) ([]int64, error)
+	SaveBookSubjects(bookID string, subjectIDs []int64) error
+	GetBookSubjectIDs(bookID string) ([]int64, error)
+	GetSubjectsByID(subjectIDs []int64) ([]string, error)
 }

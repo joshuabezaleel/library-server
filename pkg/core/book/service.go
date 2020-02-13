@@ -15,6 +15,10 @@ type Service interface {
 	Delete(bookID string) error
 
 	// Other operations.
+	GetSubjectIDs(subjects []string) ([]int64, error)
+	SaveBookSubjects(bookID string, subjectIDs []int64) error
+	GetBookSubjectIDs(bookID string) ([]int64, error)
+	GetSubjectsByID(subjectIDs []int64) ([]string, error)
 }
 
 type service struct {
@@ -32,17 +36,49 @@ func NewBookService(bookRepository Repository) Service {
 func (s *service) Create(book *Book) (*Book, error) {
 	var newBook *Book
 
+	// Create a new instance of Book.
 	if book.ID == "" {
-		newBook = NewBook(util.NewID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
+		newBook = NewBook(util.NewID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Author, book.Quantity, time.Now())
 	} else {
-		newBook = NewBook(book.ID, book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
+		newBook = NewBook(book.ID, book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Author, book.Quantity, time.Now())
+	}
+
+	// Retrieve the IDs of the particular Book subjects that want to be created.
+	subjectIDs, err := s.GetSubjectIDs(book.Subject)
+	if err != nil {
+		return nil, err
+	}
+
+	// Save the relation between this BookID with all of the subjectIDs
+	err = s.SaveBookSubjects(newBook.ID, subjectIDs)
+	if err != nil {
+		return nil, err
 	}
 
 	return s.bookRepository.Save(newBook)
 }
 
 func (s *service) Get(bookID string) (*Book, error) {
-	return s.bookRepository.Get(bookID)
+	book, err := s.bookRepository.Get(bookID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Retrieve the IDs of the particular Book subjects that want to be retrieved.
+	subjectIDs, err := s.GetBookSubjectIDs(bookID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Retrieve the Subjects by the IDs.
+	subjects, err := s.GetSubjectsByID(subjectIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	book.Subject = subjects
+
+	return book, nil
 }
 
 func (s *service) Update(book *Book) (*Book, error) {
@@ -51,4 +87,20 @@ func (s *service) Update(book *Book) (*Book, error) {
 
 func (s *service) Delete(bookID string) error {
 	return s.bookRepository.Delete(bookID)
+}
+
+func (s *service) GetSubjectIDs(subjects []string) ([]int64, error) {
+	return s.bookRepository.GetSubjectIDs(subjects)
+}
+
+func (s *service) SaveBookSubjects(bookID string, subjectIDs []int64) error {
+	return s.bookRepository.SaveBookSubjects(bookID, subjectIDs)
+}
+
+func (s *service) GetBookSubjectIDs(bookID string) ([]int64, error) {
+	return s.bookRepository.GetBookSubjectIDs(bookID)
+}
+
+func (s *service) GetSubjectsByID(subjectIDs []int64) ([]string, error) {
+	return s.bookRepository.GetSubjectsByID(subjectIDs)
 }

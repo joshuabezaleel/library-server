@@ -51,7 +51,7 @@ type Book struct {
 }
 
 // NewBook creates a new instance of Book domain model.
-func NewBook(id string, title string, publisher string, yearPublished int, callNumber string, coverPicture string, isbn string, collation string, edition int, description string, locClassification string, subject []string, author []string, quantity int, addedAt time.Time) *Book {
+func NewBook(id string, title string, publisher string, yearPublished int, callNumber string, coverPicture string, isbn string, collation string, edition int, description string, locClassification string, author []string, quantity int, addedAt time.Time) *Book {
 	return &Book{
 		ID:                id,
 		Title:             title,
@@ -64,7 +64,6 @@ func NewBook(id string, title string, publisher string, yearPublished int, callN
 		Edition:           edition,
 		Description:       description,
 		LOCClassification: locClassification,
-		Subject:           subject,
 		Author:            author,
 		Quantity:          quantity,
 		AddedAt:           addedAt,

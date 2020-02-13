@@ -19,7 +19,7 @@ func NewBookRepository(DB *sqlx.DB) book.Repository {
 }
 
 func (repo *bookRepository) Save(book *book.Book) (*book.Book, error) {
-	_, err := repo.DB.NamedExec("INSERT INTO books (id, title, publisher, year_published, call_number, cover_picture, isbn, book_collation, edition, description, loc_classification, subject, author, quantity, added_at) VALUES (:id, :title, :publisher, :year_published, :call_number, :cover_picture, :isbn, :book_collation, :edition, :description, :loc_classification, :subject, :author, :quantity, :added_at)", book)
+	_, err := repo.DB.NamedExec("INSERT INTO books (id, title, publisher, year_published, call_number, cover_picture, isbn, book_collation, edition, description, loc_classification, author, quantity, added_at) VALUES (:id, :title, :publisher, :year_published, :call_number, :cover_picture, :isbn, :book_collation, :edition, :description, :loc_classification, :subject, :author, :quantity, :added_at)", book)
 
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (repo *bookRepository) Get(bookID string) (*book.Book, error) {
 }
 
 func (repo *bookRepository) Update(book *book.Book) (*book.Book, error) {
-	_, err := repo.DB.NamedExec("UPDATE books SET title=:title, publisher=:publisher, year_published=:year_published, call_number=:call_number, cover_picture=:cover_picture, isbn=:isbn, book_collation=:book_collation, edition=:edition, description=:description, loc_classification=:loc_classification, subject=:subject, author=:author, quantity=:quantity WHERE id=:id", book)
+	_, err := repo.DB.NamedExec("UPDATE books SET title=:title, publisher=:publisher, year_published=:year_published, call_number=:call_number, cover_picture=:cover_picture, isbn=:isbn, book_collation=:book_collation, edition=:edition, description=:description, loc_classification=:loc_classification, author=:author, quantity=:quantity WHERE id=:id", book)
 	if err != nil {
 		return nil, err
 	}
@@ -61,4 +61,71 @@ func (repo *bookRepository) Delete(bookID string) error {
 	}
 
 	return nil
+}
+
+func (repo *bookRepository) GetSubjectIDs(subjects []string) ([]int64, error) {
+	var subjectID int64
+	var subjectIDs []int64
+
+	for _, subject := range subjects {
+		err := repo.DB.QueryRow("SELECT id FROM subjects WHERE subject=$1", subject).Scan(&subjectID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		subjectIDs = append(subjectIDs, subjectID)
+	}
+
+	return subjectIDs, nil
+}
+
+func (repo *bookRepository) SaveBookSubjects(bookID string, subjectIDs []int64) error {
+	for _, subjectID := range subjectIDs {
+		_, err := repo.DB.Exec("INSERT INTO books_subjects (book_id, subject_id) VALUES ($1,$2)", bookID, subjectID)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (repo *bookRepository) GetBookSubjectIDs(bookID string) ([]int64, error) {
+	var subjectID int64
+	var subjectIDs []int64
+
+	rows, err := repo.DB.Queryx("SELECT subject_id FROM books_subjects WHERE book_id=$1", bookID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		err = rows.StructScan(&subjectID)
+		if err != nil {
+			return nil, err
+		}
+
+		subjectIDs = append(subjectIDs, subjectID)
+	}
+
+	return subjectIDs, nil
+}
+
+func (repo *bookRepository) GetSubjectsByID(subjectIDs []int64) ([]string, error) {
+	var subject string
+	var subjects []string
+
+	for _, subjectID := range subjectIDs {
+		err := repo.DB.QueryRow("SELECT subject FROM subjects WHERE id=$1", subjectID).Scan(&subject)
+		if err != nil {
+			return nil, err
+		}
+
+		subjects = append(subjects, subject)
+	}
+
+	return subjects, nil
 }
