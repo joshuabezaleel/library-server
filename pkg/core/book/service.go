@@ -106,25 +106,54 @@ func (s *service) Get(bookID string) (*Book, error) {
 }
 
 func (s *service) Update(book *Book) (*Book, error) {
-	return s.bookRepository.Update(book)
+	book, err := s.bookRepository.Update(book)
+	if err != nil {
+		return nil, ErrUpdateBook
+	}
+
+	return book, nil
 }
 
 func (s *service) Delete(bookID string) error {
-	return s.bookRepository.Delete(bookID)
+	err := s.bookRepository.Delete(bookID)
+	if err != nil {
+		return ErrDeleteBook
+	}
+
+	return nil
 }
 
 func (s *service) GetSubjectIDs(subjects []string) ([]int64, error) {
-	return s.bookRepository.GetSubjectIDs(subjects)
+	subjectIDs, err := s.bookRepository.GetSubjectIDs(subjects)
+	if err != nil {
+		return nil, ErrGetSubjectIDs
+	}
+	return subjectIDs, nil
 }
 
 func (s *service) SaveBookSubjects(bookID string, subjectIDs []int64) error {
-	return s.bookRepository.SaveBookSubjects(bookID, subjectIDs)
+	err := s.bookRepository.SaveBookSubjects(bookID, subjectIDs)
+	if err != nil {
+		return ErrSaveBookSubjects
+	}
+
+	return nil
 }
 
 func (s *service) GetBookSubjectIDs(bookID string) ([]int64, error) {
-	return s.bookRepository.GetBookSubjectIDs(bookID)
+	bookSubjectIDs, err := s.bookRepository.GetBookSubjectIDs(bookID)
+	if err != nil {
+		return nil, ErrGetBookSubjectIDs
+	}
+
+	return bookSubjectIDs, nil
 }
 
 func (s *service) GetSubjectsByID(subjectIDs []int64) ([]string, error) {
-	return s.bookRepository.GetSubjectsByID(subjectIDs)
+	subjects, err := s.bookRepository.GetSubjectsByID(subjectIDs)
+	if err != nil {
+		return nil, ErrGetSubjectsByID
+	}
+
+	return subjects, nil
 }
