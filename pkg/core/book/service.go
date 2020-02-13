@@ -43,7 +43,7 @@ func (s *service) Create(book *Book) (*Book, error) {
 		newBook = NewBook(book.ID, book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Author, book.Quantity, time.Now())
 	}
 
-	createdBook, err := s.bookRepository.Save(newBook)
+	newBook, err := s.bookRepository.Save(newBook)
 	if err != nil {
 		return nil, err
 	}
@@ -56,6 +56,11 @@ func (s *service) Create(book *Book) (*Book, error) {
 
 	// Save the relation between this BookID with all of the subjectIDs
 	err = s.SaveBookSubjects(newBook.ID, subjectIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	createdBook, err := s.Get(newBook.ID)
 	if err != nil {
 		return nil, err
 	}

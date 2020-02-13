@@ -96,14 +96,14 @@ func (repo *bookRepository) GetBookSubjectIDs(bookID string) ([]int64, error) {
 	var subjectID int64
 	var subjectIDs []int64
 
-	rows, err := repo.DB.Queryx("SELECT subject_id FROM books_subjects WHERE book_id=$1", bookID)
+	rows, err := repo.DB.Query("SELECT subject_id FROM books_subjects WHERE book_id=$1", bookID)
 
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
-		err = rows.StructScan(&subjectID)
+		err = rows.Scan(&subjectID)
 		if err != nil {
 			return nil, err
 		}
