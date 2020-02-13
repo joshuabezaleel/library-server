@@ -43,6 +43,11 @@ func (s *service) Create(book *Book) (*Book, error) {
 		newBook = NewBook(book.ID, book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Author, book.Quantity, time.Now())
 	}
 
+	createdBook, err := s.bookRepository.Save(newBook)
+	if err != nil {
+		return nil, err
+	}
+
 	// Retrieve the IDs of the particular Book subjects that want to be created.
 	subjectIDs, err := s.GetSubjectIDs(book.Subject)
 	if err != nil {
@@ -55,7 +60,7 @@ func (s *service) Create(book *Book) (*Book, error) {
 		return nil, err
 	}
 
-	return s.bookRepository.Save(newBook)
+	return createdBook, nil
 }
 
 func (s *service) Get(bookID string) (*Book, error) {
