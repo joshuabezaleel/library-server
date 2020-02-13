@@ -1,9 +1,23 @@
 package book
 
 import (
+	"errors"
 	"time"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
+)
+
+// Errors definition.
+var (
+	ErrCreateBook = errors.New("Error creating Book")
+	ErrGetBook    = errors.New("Error retrieving Book")
+	ErrUpdateBook = errors.New("Error updating Book")
+	ErrDeleteBook = errors.New("Error deleting Book")
+
+	ErrGetSubjectIDs     = errors.New("Error retrieving subject IDs")
+	ErrSaveBookSubjects  = errors.New("Error saving Book's subjects")
+	ErrGetBookSubjectIDs = errors.New("Error retrieving Book's subjects")
+	ErrGetSubjectsByID   = errors.New("Error retrieving subjects")
 )
 
 // Service provides basic operations on Book domain model.
@@ -45,24 +59,24 @@ func (s *service) Create(book *Book) (*Book, error) {
 
 	newBook, err := s.bookRepository.Save(newBook)
 	if err != nil {
-		return nil, err
+		return nil, ErrCreateBook
 	}
 
 	// Retrieve the IDs of the particular Book subjects that want to be created.
 	subjectIDs, err := s.GetSubjectIDs(book.Subject)
 	if err != nil {
-		return nil, err
+		return nil, ErrGetSubjectIDs
 	}
 
 	// Save the relation between this BookID with all of the subjectIDs
 	err = s.SaveBookSubjects(newBook.ID, subjectIDs)
 	if err != nil {
-		return nil, err
+		return nil, ErrSaveBookSubjects
 	}
 
 	createdBook, err := s.Get(newBook.ID)
 	if err != nil {
-		return nil, err
+		return nil, ErrGetBook
 	}
 
 	return createdBook, nil
@@ -71,19 +85,19 @@ func (s *service) Create(book *Book) (*Book, error) {
 func (s *service) Get(bookID string) (*Book, error) {
 	book, err := s.bookRepository.Get(bookID)
 	if err != nil {
-		return nil, err
+		return nil, ErrGetBook
 	}
 
 	// Retrieve the IDs of the particular Book subjects that want to be retrieved.
 	subjectIDs, err := s.GetBookSubjectIDs(bookID)
 	if err != nil {
-		return nil, err
+		return nil, ErrGetBookSubjectIDs
 	}
 
 	// Retrieve the Subjects by the IDs.
 	subjects, err := s.GetSubjectsByID(subjectIDs)
 	if err != nil {
-		return nil, err
+		return nil, ErrGetSubjectsByID
 	}
 
 	book.Subject = subjects
