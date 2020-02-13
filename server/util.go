@@ -2,7 +2,13 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+)
+
+var (
+	errInvalidRequestPayload = errors.New("Invalid request payload")
+	errInvalidURLPath        = errors.New("Invalid URL path")
 )
 
 func respondWithError(w http.ResponseWriter, code int, message string) {

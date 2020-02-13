@@ -30,7 +30,7 @@ func (handler *bookHandler) createBook(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
-		respondWithJSON(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -48,7 +48,7 @@ func (handler *bookHandler) getBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 
@@ -66,7 +66,7 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -74,7 +74,7 @@ func (handler *bookHandler) updateBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 	book.ID = bookID
@@ -92,7 +92,7 @@ func (handler *bookHandler) deleteBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 

@@ -23,7 +23,7 @@ func (handler *borrowingHandler) borrowBookCopy(w http.ResponseWriter, r *http.R
 	vars := mux.Vars(r)
 	bookCopyID, ok := vars["bookCopyID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book copy ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 
@@ -42,7 +42,7 @@ func (handler *borrowingHandler) returnBookCopy(w http.ResponseWriter, r *http.R
 	vars := mux.Vars(r)
 	bookCopyID, ok := vars["bookCopyID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book copy ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 

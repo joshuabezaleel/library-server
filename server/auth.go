@@ -27,7 +27,7 @@ func (handler *authHandler) login(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()

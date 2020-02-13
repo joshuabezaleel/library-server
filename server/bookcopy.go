@@ -30,7 +30,7 @@ func (handler *bookCopyHandler) createBookCopy(w http.ResponseWriter, r *http.Re
 
 	err := json.NewDecoder(r.Body).Decode(&bookCopy)
 	if err != nil {
-		respondWithJSON(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -38,7 +38,7 @@ func (handler *bookCopyHandler) createBookCopy(w http.ResponseWriter, r *http.Re
 	vars := mux.Vars(r)
 	bookID, ok := vars["bookID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 	bookCopy.BookID = bookID
@@ -56,7 +56,7 @@ func (handler *bookCopyHandler) getBookCopy(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 	bookCopyID, ok := vars["bookCopyID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book copy ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 
@@ -74,7 +74,7 @@ func (handler *bookCopyHandler) updateBookCopy(w http.ResponseWriter, r *http.Re
 
 	err := json.NewDecoder(r.Body).Decode(&bookCopy)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -82,7 +82,7 @@ func (handler *bookCopyHandler) updateBookCopy(w http.ResponseWriter, r *http.Re
 	vars := mux.Vars(r)
 	bookCopyID, ok := vars["bookCopyID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book copy ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 	bookCopy.ID = bookCopyID
@@ -100,7 +100,7 @@ func (handler *bookCopyHandler) deleteBookCopy(w http.ResponseWriter, r *http.Re
 	vars := mux.Vars(r)
 	bookCopyID, ok := vars["bookCopyID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid book copy ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 

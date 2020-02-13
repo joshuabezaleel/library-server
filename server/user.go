@@ -30,7 +30,7 @@ func (handler *userHandler) createUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -48,7 +48,7 @@ func (handler *userHandler) getUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 
@@ -66,7 +66,7 @@ func (handler *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		respondWithError(w, http.StatusBadRequest, errInvalidRequestPayload.Error())
 		return
 	}
 	defer r.Body.Close()
@@ -74,7 +74,7 @@ func (handler *userHandler) updateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 	user.ID = userID
@@ -92,7 +92,7 @@ func (handler *userHandler) deleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID, ok := vars["userID"]
 	if !ok {
-		respondWithError(w, http.StatusBadRequest, "Invalid user ID")
+		respondWithError(w, http.StatusBadRequest, errInvalidURLPath.Error())
 		return
 	}
 
