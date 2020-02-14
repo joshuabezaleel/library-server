@@ -18,6 +18,11 @@ var (
 	ErrSaveBookSubjects  = errors.New("Error saving Book's subjects")
 	ErrGetBookSubjectIDs = errors.New("Error retrieving Book's subjects")
 	ErrGetSubjectsByID   = errors.New("Error retrieving subjects")
+
+	ErrGetAuthorIDs     = errors.New("Error retrieving author IDs")
+	ErrSaveBookAuthors  = errors.New("Error saving Book's authors")
+	ErrGetBookAuthorIDs = errors.New("Error retrieving Book's authors")
+	ErrGetAuthorsByID   = errors.New("Error retrieving authors")
 )
 
 // Service provides basic operations on Book domain model.
@@ -62,13 +67,13 @@ func (s *service) Create(book *Book) (*Book, error) {
 		return nil, ErrCreateBook
 	}
 
-	// Retrieve the IDs of the particular Book subjects that want to be created.
+	// Retrieve the subjectIDs of the particular Book that want to be created.
 	subjectIDs, err := s.GetSubjectIDs(book.Subject)
 	if err != nil {
 		return nil, ErrGetSubjectIDs
 	}
 
-	// Save the relation between this BookID with all of the subjectIDs
+	// Save the relation between this BookID with all of the subjectIDs.
 	err = s.SaveBookSubjects(newBook.ID, subjectIDs)
 	if err != nil {
 		return nil, ErrSaveBookSubjects
