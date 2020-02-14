@@ -56,11 +56,7 @@ func (s *service) Create(book *Book) (*Book, error) {
 	var newBook *Book
 
 	// Create a new instance of Book.
-	// if book.ID == "" {
 	newBook = NewBook(util.NewID(), book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Subject, book.Author, book.Quantity, time.Now())
-	// } else {
-	// 	newBook = NewBook(book.ID, book.Title, book.Publisher, book.YearPublished, book.CallNumber, book.CoverPicture, book.ISBN, book.Collation, book.Edition, book.Description, book.LOCClassification, book.Author, book.Quantity, time.Now())
-	// }
 
 	newBook, err := s.bookRepository.Save(newBook)
 	if err != nil {
