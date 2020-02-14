@@ -1,11 +1,25 @@
 package user
 
 import (
+	"errors"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
+)
+
+// Errors definition.
+var (
+	ErrCreateUser = errors.New("Error creating User")
+	ErrGetUser    = errors.New("Error retrieving User")
+	ErrUpdateUser = errors.New("Error updating User")
+	ErrDeleteUser = errors.New("Error deleting User")
+
+	ErrGetUserIDByUsername = errors.New("Error retrieving User ID")
+	ErrGetRole             = errors.New("Error retrieving User's role")
+	ErrAddFine             = errors.New("Error adding fine to User")
+	ErrGetTotalFine        = errors.New("Error retrieving User's total fine")
 )
 
 // Service provides basic operations on User domain model.
@@ -44,36 +58,61 @@ func (s *service) Create(user *User) (*User, error) {
 		newUser = NewUser(user.ID, user.StudentID, user.Role, user.Username, user.Email, hashAndSalt(user.Password), user.TotalFine, time.Now())
 	}
 
-	return s.userRepository.Save(newUser)
+	newUser, err := s.userRepository.Save(newUser)
+	if err != nil {
+		return nil, ErrCreateUser
+	}
+
+	return newUser, nil
 }
 
 func (s *service) Get(userID string) (*User, error) {
-	return s.userRepository.Get(userID)
+	user, err := s.userRepository.Get(userID)
+	if err != nil {
+		return nil, ErrGetUser
+	}
+
+	return user, nil
 }
 
 func (s *service) Update(user *User) (*User, error) {
 	user.Password = hashAndSalt(user.Password)
 
-	return s.userRepository.Update(user)
+	user, err := s.userRepository.Update(user)
+	if err != nil {
+		return nil, ErrUpdateUser
+	}
+
+	return user, nil
 }
 
 func (s *service) Delete(userID string) error {
-	return s.userRepository.Delete(userID)
+	err := s.userRepository.Delete(userID)
+	if err != nil {
+		return ErrDeleteUser
+	}
+
+	return nil
 }
 
 func (s *service) GetUserIDByUsername(username string) (string, error) {
-	return s.userRepository.GetIDByUsername(username)
+	userID, err := s.userRepository.GetIDByUsername(username)
+	if err != nil {
+		return "", ErrGetUserIDByUsername
+	}
+
+	return userID, nil
 }
 
 func (s *service) GetRole(username string) (string, error) {
 	userID, err := s.GetUserIDByUsername(username)
 	if err != nil {
-		return "", err
+		return "", ErrGetUserIDByUsername
 	}
 
 	role, err := s.userRepository.GetRole(userID)
 	if err != nil {
-		return "", err
+		return "", ErrGetRole
 	}
 
 	return role, nil
@@ -82,16 +121,26 @@ func (s *service) GetRole(username string) (string, error) {
 func (s *service) AddFine(userID string, fine uint32) (uint32, error) {
 	currentTotalFine, err := s.GetTotalFine(userID)
 	if err != nil {
-		return 0, err
+		return 0, ErrGetTotalFine
 	}
 
 	totalAddedFine := currentTotalFine + fine
 
-	return totalAddedFine, s.userRepository.AddFine(userID, totalAddedFine)
+	err = s.userRepository.AddFine(userID, totalAddedFine)
+	if err != nil {
+		return 0, ErrAddFine
+	}
+
+	return totalAddedFine, nil
 }
 
 func (s *service) GetTotalFine(userID string) (uint32, error) {
-	return s.userRepository.GetTotalFine(userID)
+	totalFine, err := s.userRepository.GetTotalFine(userID)
+	if err != nil {
+		return 0, ErrGetTotalFine
+	}
+
+	return totalFine, nil
 }
 
 func hashAndSalt(password string) string {
