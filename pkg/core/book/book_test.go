@@ -20,11 +20,26 @@ func TestCreate(t *testing.T) {
 	})
 	defer timePatch.Unpatch()
 
+	ID := util.NewID()
+	IDPatch := monkey.Patch(util.NewID, func() string {
+		return ID
+	})
+	defer IDPatch.Unpatch()
+
+	subjects := []string{"Mathematics", "Physics"}
+	subjectIDs := []int64{1, 2}
 	book := &Book{
-		ID:      util.NewID(),
+		ID:      ID,
 		AddedAt: createdTime,
+		Subject: subjects,
 	}
+
 	bookRepository.On("Save", book).Return(book, nil)
+	bookRepository.On("GetSubjectIDs", book.Subject).Return(subjectIDs, nil)
+	bookRepository.On("SaveBookSubjects", book.ID, subjectIDs).Return(nil)
+	bookRepository.On("Get", book.ID).Return(book, nil)
+	bookRepository.On("GetBookSubjectIDs", book.ID).Return(subjectIDs, nil)
+	bookRepository.On("GetSubjectsByID", subjectIDs).Return(subjects, nil)
 
 	newBook, err := bookService.Create(book)
 
