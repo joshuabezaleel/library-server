@@ -30,6 +30,7 @@ func TestCreate(t *testing.T) {
 	subjectIDs := []int64{1, 2}
 	book := &Book{
 		ID:      ID,
+		Title:   "book title",
 		AddedAt: createdTime,
 		Subject: subjects,
 	}
@@ -45,6 +46,7 @@ func TestCreate(t *testing.T) {
 
 	require.Nil(t, err)
 	require.Equal(t, book.ID, newBook.ID)
+	require.Equal(t, book.Title, newBook.Title)
 }
 
 func TestGet(t *testing.T) {
