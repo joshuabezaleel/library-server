@@ -129,3 +129,70 @@ func (repo *bookRepository) GetSubjectsByID(subjectIDs []int64) ([]string, error
 
 	return subjects, nil
 }
+
+func (repo *bookRepository) GetAuthorIDs(authors []string) ([]int64, error) {
+	var authorID int64
+	var authorIDs []int64
+
+	for _, author := range authors {
+		err := repo.DB.QueryRow("SELECT id FROM authors WHERE name=$1", author).Scan(&authorID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		authorIDs = append(authorIDs, authorID)
+	}
+
+	return authorIDs, nil
+}
+
+func (repo *bookRepository) SaveBookAuthors(bookID string, authorIDs []int64) error {
+	for _, authorID := range authorIDs {
+		_, err := repo.DB.Exec("INSERT INTO books_authors (book_id, author_id) VALUES ($1,$2)", bookID, authorID)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (repo *bookRepository) GetBookAuthorIDs(bookID string) ([]int64, error) {
+	var authorID int64
+	var authorIDs []int64
+
+	rows, err := repo.DB.Query("SELECT author_id FROM books_authors WHERE book_id=$1", bookID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		err = rows.Scan(&authorID)
+		if err != nil {
+			return nil, err
+		}
+
+		authorIDs = append(authorIDs, authorID)
+	}
+
+	return authorIDs, nil
+}
+
+func (repo *bookRepository) GetAuthorsByID(authorIDs []int64) ([]string, error) {
+	var author string
+	var authors []string
+
+	for _, authorID := range authorIDs {
+		err := repo.DB.QueryRow("SELECT name FROM authors WHERE id=$1", authorID).Scan(&author)
+		if err != nil {
+			return nil, err
+		}
+
+		authors = append(authors, author)
+	}
+
+	return authors, nil
+}

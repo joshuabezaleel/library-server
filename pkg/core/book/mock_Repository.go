@@ -46,6 +46,75 @@ func (_m *MockRepository) Get(bookID string) (*Book, error) {
 	return r0, r1
 }
 
+// GetAuthorIDs provides a mock function with given fields: authors
+func (_m *MockRepository) GetAuthorIDs(authors []string) ([]int64, error) {
+	ret := _m.Called(authors)
+
+	var r0 []int64
+	if rf, ok := ret.Get(0).(func([]string) []int64); ok {
+		r0 = rf(authors)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]int64)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]string) error); ok {
+		r1 = rf(authors)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetAuthorsByID provides a mock function with given fields: authorIDs
+func (_m *MockRepository) GetAuthorsByID(authorIDs []int64) ([]string, error) {
+	ret := _m.Called(authorIDs)
+
+	var r0 []string
+	if rf, ok := ret.Get(0).(func([]int64) []string); ok {
+		r0 = rf(authorIDs)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]string)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]int64) error); ok {
+		r1 = rf(authorIDs)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetBookAuthorIDs provides a mock function with given fields: bookID
+func (_m *MockRepository) GetBookAuthorIDs(bookID string) ([]int64, error) {
+	ret := _m.Called(bookID)
+
+	var r0 []int64
+	if rf, ok := ret.Get(0).(func(string) []int64); ok {
+		r0 = rf(bookID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]int64)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(bookID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetBookSubjectIDs provides a mock function with given fields: bookID
 func (_m *MockRepository) GetBookSubjectIDs(bookID string) ([]int64, error) {
 	ret := _m.Called(bookID)
@@ -136,6 +205,20 @@ func (_m *MockRepository) Save(book *Book) (*Book, error) {
 	}
 
 	return r0, r1
+}
+
+// SaveBookAuthors provides a mock function with given fields: bookID, authorIDs
+func (_m *MockRepository) SaveBookAuthors(bookID string, authorIDs []int64) error {
+	ret := _m.Called(bookID, authorIDs)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string, []int64) error); ok {
+		r0 = rf(bookID, authorIDs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // SaveBookSubjects provides a mock function with given fields: bookID, subjectIDs

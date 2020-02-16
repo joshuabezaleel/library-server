@@ -38,6 +38,10 @@ type Service interface {
 	SaveBookSubjects(bookID string, subjectIDs []int64) error
 	GetBookSubjectIDs(bookID string) ([]int64, error)
 	GetSubjectsByID(subjectIDs []int64) ([]string, error)
+	GetAuthorIDs(authors []string) ([]int64, error)
+	SaveBookAuthors(bookID string, authorIDs []int64) error
+	GetBookAuthorIDs(bookID string) ([]int64, error)
+	GetAuthorsByID(authorIDs []int64) ([]string, error)
 }
 
 type service struct {
@@ -152,4 +156,39 @@ func (s *service) GetSubjectsByID(subjectIDs []int64) ([]string, error) {
 	}
 
 	return subjects, nil
+}
+
+func (s *service) GetAuthorIDs(authors []string) ([]int64, error) {
+	authorIDs, err := s.bookRepository.GetAuthorIDs(authors)
+	if err != nil {
+		return nil, ErrGetAuthorIDs
+	}
+	return authorIDs, nil
+}
+
+func (s *service) SaveBookAuthors(bookID string, authorIDs []int64) error {
+	err := s.bookRepository.SaveBookAuthors(bookID, authorIDs)
+	if err != nil {
+		return ErrSaveBookAuthors
+	}
+
+	return nil
+}
+
+func (s *service) GetBookAuthorIDs(bookID string) ([]int64, error) {
+	bookAuthorIDs, err := s.bookRepository.GetBookAuthorIDs(bookID)
+	if err != nil {
+		return nil, ErrGetBookAuthorIDs
+	}
+
+	return bookAuthorIDs, nil
+}
+
+func (s *service) GetAuthorsByID(authorIDs []int64) ([]string, error) {
+	authors, err := s.bookRepository.GetAuthorsByID(authorIDs)
+	if err != nil {
+		return nil, ErrGetAuthorsByID
+	}
+
+	return authors, nil
 }
