@@ -75,12 +75,7 @@ func (s *service) Create(book *Book) (*Book, error) {
 		return nil, ErrSaveBookSubjects
 	}
 
-	createdBook, err := s.Get(newBook.ID)
-	if err != nil {
-		return nil, ErrGetBook
-	}
-
-	return createdBook, nil
+	return newBook, nil
 }
 
 func (s *service) Get(bookID string) (*Book, error) {

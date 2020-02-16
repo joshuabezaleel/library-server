@@ -19,7 +19,7 @@ func NewBookRepository(DB *sqlx.DB) book.Repository {
 }
 
 func (repo *bookRepository) Save(book *book.Book) (*book.Book, error) {
-	_, err := repo.DB.NamedExec("INSERT INTO books (id, title, publisher, year_published, call_number, cover_picture, isbn, book_collation, edition, description, loc_classification, author, quantity, added_at) VALUES (:id, :title, :publisher, :year_published, :call_number, :cover_picture, :isbn, :book_collation, :edition, :description, :loc_classification, :author, :quantity, :added_at)", book)
+	_, err := repo.DB.NamedExec("INSERT INTO books (id, title, publisher, year_published, call_number, cover_picture, isbn, book_collation, edition, description, loc_classification, quantity, added_at) VALUES (:id, :title, :publisher, :year_published, :call_number, :cover_picture, :isbn, :book_collation, :edition, :description, :loc_classification, :quantity, :added_at)", book)
 
 	if err != nil {
 		return nil, err
