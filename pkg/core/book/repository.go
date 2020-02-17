@@ -13,6 +13,8 @@ type Repository interface {
 	SaveBookSubjects(bookID string, subjectIDs []int64) error
 	GetBookSubjectIDs(bookID string) ([]int64, error)
 	GetSubjectsByID(subjectIDs []int64) ([]string, error)
+
+	SaveAuthors(authors []string) error
 	GetAuthorIDs(authors []string) ([]int64, error)
 	SaveBookAuthors(bookID string, authorIDs []int64) error
 	GetBookAuthorIDs(bookID string) ([]int64, error)

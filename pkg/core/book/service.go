@@ -19,6 +19,7 @@ var (
 	ErrGetBookSubjectIDs = errors.New("Error retrieving Book's subjects")
 	ErrGetSubjectsByID   = errors.New("Error retrieving subjects")
 
+	ErrSaveAuthors      = errors.New("Error saving authors")
 	ErrGetAuthorIDs     = errors.New("Error retrieving author IDs")
 	ErrSaveBookAuthors  = errors.New("Error saving Book's authors")
 	ErrGetBookAuthorIDs = errors.New("Error retrieving Book's authors")
@@ -38,6 +39,8 @@ type Service interface {
 	SaveBookSubjects(bookID string, subjectIDs []int64) error
 	GetBookSubjectIDs(bookID string) ([]int64, error)
 	GetSubjectsByID(subjectIDs []int64) ([]string, error)
+
+	SaveAuthors(authors []string) error
 	GetAuthorIDs(authors []string) ([]int64, error)
 	SaveBookAuthors(bookID string, authorIDs []int64) error
 	GetBookAuthorIDs(bookID string) ([]int64, error)
@@ -77,6 +80,24 @@ func (s *service) Create(book *Book) (*Book, error) {
 	err = s.SaveBookSubjects(newBook.ID, subjectIDs)
 	if err != nil {
 		return nil, ErrSaveBookSubjects
+	}
+
+	// Save Authors of the Books.
+	err = s.SaveAuthors(book.Author)
+	if err != nil {
+		return nil, ErrSaveAuthors
+	}
+
+	// Retrieve the authorIds of the particular Book that want to be created.
+	authorIDs, err := s.GetAuthorIDs(book.Author)
+	if err != nil {
+		return nil, ErrGetAuthorIDs
+	}
+
+	// Save the relation between this BookID with all of the authorIDs.
+	err = s.SaveBookAuthors(newBook.ID, authorIDs)
+	if err != nil {
+		return nil, ErrSaveBookAuthors
 	}
 
 	return newBook, nil
@@ -156,6 +177,15 @@ func (s *service) GetSubjectsByID(subjectIDs []int64) ([]string, error) {
 	}
 
 	return subjects, nil
+}
+
+func (s *service) SaveAuthors(authors []string) error {
+	err := s.bookRepository.SaveAuthors(authors)
+	if err != nil {
+		return ErrSaveAuthors
+	}
+
+	return nil
 }
 
 func (s *service) GetAuthorIDs(authors []string) ([]int64, error) {

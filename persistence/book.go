@@ -130,6 +130,26 @@ func (repo *bookRepository) GetSubjectsByID(subjectIDs []int64) ([]string, error
 	return subjects, nil
 }
 
+func (repo *bookRepository) SaveAuthors(authors []string) error {
+	var isAuthorExists bool
+
+	for _, author := range authors {
+		err := repo.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM authors WHERE name=$1)", author).Scan(&isAuthorExists)
+		if err != nil {
+			return err
+		}
+
+		if !isAuthorExists {
+			_, err := repo.DB.Exec("INSERT INTO authors (name) VALUES ($1)", author)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (repo *bookRepository) GetAuthorIDs(authors []string) ([]int64, error) {
 	var authorID int64
 	var authorIDs []int64
