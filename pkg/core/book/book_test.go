@@ -33,7 +33,7 @@ func TestCreate(t *testing.T) {
 
 	book := &Book{
 		ID:      ID,
-		Title:   "book title",
+		Title:   "book",
 		Subject: subjects,
 		Author:  authors,
 		AddedAt: createdTime,
@@ -41,7 +41,7 @@ func TestCreate(t *testing.T) {
 
 	errorBook := &Book{
 		ID:      ID,
-		Title:   "error book",
+		Title:   "errorBook",
 		Subject: subjects,
 		Author:  authors,
 		AddedAt: createdTime,
@@ -78,9 +78,9 @@ func TestCreate(t *testing.T) {
 
 			newBook, err := bookService.Create(book)
 
-			require.Nil(t, err)
+			require.Equal(t, tc.err, err)
 
-			if err == nil {
+			if tc.err == nil {
 				require.Equal(t, book.ID, newBook.ID)
 				require.Equal(t, book.Title, newBook.Title)
 			}
@@ -102,52 +102,138 @@ func TestGet(t *testing.T) {
 
 	book := &Book{
 		ID:      ID,
-		Title:   "book title",
+		Title:   "book",
 		Subject: subjects,
 		Author:  authors,
 	}
 
-	bookRepository.On("Get", book.ID).Return(book, nil)
-	bookRepository.On("GetBookSubjectIDs", book.ID).Return(subjectIDs, nil)
-	bookRepository.On("GetSubjectsByID", subjectIDs).Return(subjects, nil)
-	bookRepository.On("GetBookAuthorIDs", book.ID).Return(authorIDs, nil)
-	bookRepository.On("GetAuthorsByID", authorIDs).Return(authors, nil)
+	errorBook := &Book{
+		ID:      ID,
+		Title:   "errorBook",
+		Subject: subjects,
+		Author:  authors,
+	}
 
-	newBook, err := bookService.Get(book.ID)
+	tt := []struct {
+		name          string
+		book          *Book
+		returnPayload *Book
+		err           error
+	}{
+		{
+			name:          "success retrieving a Book",
+			book:          book,
+			returnPayload: book,
+			err:           nil,
+		},
+		{
+			name:          "failed retrieving a Book",
+			book:          errorBook,
+			returnPayload: nil,
+			err:           ErrGetBook,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, book.ID, newBook.ID)
-	require.Equal(t, book.Title, newBook.Title)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("Get", tc.book.ID).Return(tc.returnPayload, tc.err)
+			bookRepository.On("GetBookSubjectIDs", book.ID).Return(subjectIDs, nil)
+			bookRepository.On("GetSubjectsByID", subjectIDs).Return(subjects, nil)
+			bookRepository.On("GetBookAuthorIDs", book.ID).Return(authorIDs, nil)
+			bookRepository.On("GetAuthorsByID", authorIDs).Return(authors, nil)
+
+			newBook, err := bookService.Get(book.ID)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, book.ID, newBook.ID)
+				require.Equal(t, book.Title, newBook.Title)
+			}
+		})
+	}
 }
 
 func TestUpdate(t *testing.T) {
+	ID := util.NewID()
+
 	book := &Book{
-		ID:    util.NewID(),
-		Title: "title",
+		ID:    ID,
+		Title: "book",
 	}
 
 	expectedBook := &Book{
-		ID:    book.ID,
-		Title: "edited title",
+		ID:    ID,
+		Title: "edited book",
 	}
 
-	bookRepository.On("Update", book).Return(expectedBook, nil)
+	tt := []struct {
+		name          string
+		book          *Book
+		returnPayload *Book
+		err           error
+	}{
+		{
+			name:          "success updating a Book",
+			book:          book,
+			returnPayload: expectedBook,
+			err:           nil,
+		},
+		{
+			name:          "failed updating a Book",
+			book:          book,
+			returnPayload: nil,
+			err:           ErrUpdateBook,
+		},
+	}
 
-	updatedBook, err := bookService.Update(book)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("Update", tc.book).Return(tc.returnPayload, tc.err)
 
-	require.Nil(t, err)
-	require.Equal(t, book.ID, updatedBook.ID)
-	require.Equal(t, expectedBook.Title, updatedBook.Title)
+			updatedBook, err := bookService.Update(book)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, book.ID, updatedBook.ID)
+				require.Equal(t, expectedBook.Title, updatedBook.Title)
+			}
+		})
+	}
 }
 
 func TestDelete(t *testing.T) {
+	ID := util.NewID()
+
 	book := &Book{
-		ID: util.NewID(),
+		ID: ID,
 	}
 
-	bookRepository.On("Delete", book.ID).Return(nil)
+	tt := []struct {
+		name string
+		ID   string
+		err  error
+	}{
+		{
+			name: "success deleting a Book",
+			ID:   book.ID,
+			err:  nil,
+		},
+		{
+			name: "failed deleting a Book",
+			ID:   util.NewID(),
+			err:  ErrDeleteBook,
+		},
+	}
 
-	err := bookService.Delete(book.ID)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("Delete", tc.ID).Return(tc.err)
 
-	require.Nil(t, err)
+			err := bookService.Delete(book.ID)
+
+			require.Equal(t, tc.err, err)
+		})
+	}
 }
