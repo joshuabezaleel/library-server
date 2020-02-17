@@ -123,6 +123,20 @@ func (s *service) Get(bookID string) (*Book, error) {
 
 	book.Subject = subjects
 
+	// Retrieve the IDs of the particular Book authors that want to be retrieved.
+	authorIDs, err := s.GetBookAuthorIDs(bookID)
+	if err != nil {
+		return nil, ErrGetBookAuthorIDs
+	}
+
+	// Retrieve the Authors by the IDs.
+	authors, err := s.GetAuthorsByID(authorIDs)
+	if err != nil {
+		return nil, ErrGetAuthorsByID
+	}
+
+	book.Author = authors
+
 	return book, nil
 }
 

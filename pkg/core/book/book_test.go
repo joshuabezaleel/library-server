@@ -28,16 +28,23 @@ func TestCreate(t *testing.T) {
 
 	subjects := []string{"Mathematics", "Physics"}
 	subjectIDs := []int64{1, 2}
+	authors := []string{"author1", "author2"}
+	authorIDs := []int64{1, 2}
+
 	book := &Book{
 		ID:      ID,
 		Title:   "book title",
-		AddedAt: createdTime,
 		Subject: subjects,
+		Author:  authors,
+		AddedAt: createdTime,
 	}
 
 	bookRepository.On("Save", book).Return(book, nil)
 	bookRepository.On("GetSubjectIDs", book.Subject).Return(subjectIDs, nil)
 	bookRepository.On("SaveBookSubjects", book.ID, subjectIDs).Return(nil)
+	bookRepository.On("SaveAuthors", book.Author).Return(nil)
+	bookRepository.On("GetAuthorIDs", book.Author).Return(authorIDs, nil)
+	bookRepository.On("SaveBookAuthors", book.ID, authorIDs).Return(nil)
 
 	newBook, err := bookService.Create(book)
 
