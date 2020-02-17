@@ -39,18 +39,53 @@ func TestCreate(t *testing.T) {
 		AddedAt: createdTime,
 	}
 
-	bookRepository.On("Save", book).Return(book, nil)
-	bookRepository.On("GetSubjectIDs", book.Subject).Return(subjectIDs, nil)
-	bookRepository.On("SaveBookSubjects", book.ID, subjectIDs).Return(nil)
-	bookRepository.On("SaveAuthors", book.Author).Return(nil)
-	bookRepository.On("GetAuthorIDs", book.Author).Return(authorIDs, nil)
-	bookRepository.On("SaveBookAuthors", book.ID, authorIDs).Return(nil)
+	errorBook := &Book{
+		ID:      ID,
+		Title:   "error book",
+		Subject: subjects,
+		Author:  authors,
+		AddedAt: createdTime,
+	}
 
-	newBook, err := bookService.Create(book)
+	tt := []struct {
+		name          string
+		book          *Book
+		returnPayload *Book
+		err           error
+	}{
+		{
+			name:          "success creating a Book",
+			book:          book,
+			returnPayload: book,
+			err:           nil,
+		},
+		{
+			name:          "failed creating a Book",
+			book:          errorBook,
+			returnPayload: nil,
+			err:           ErrCreateBook,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, book.ID, newBook.ID)
-	require.Equal(t, book.Title, newBook.Title)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("Save", tc.book).Return(tc.returnPayload, tc.err)
+			bookRepository.On("GetSubjectIDs", book.Subject).Return(subjectIDs, nil)
+			bookRepository.On("SaveBookSubjects", book.ID, subjectIDs).Return(nil)
+			bookRepository.On("SaveAuthors", book.Author).Return(nil)
+			bookRepository.On("GetAuthorIDs", book.Author).Return(authorIDs, nil)
+			bookRepository.On("SaveBookAuthors", book.ID, authorIDs).Return(nil)
+
+			newBook, err := bookService.Create(book)
+
+			require.Nil(t, err)
+
+			if err == nil {
+				require.Equal(t, book.ID, newBook.ID)
+				require.Equal(t, book.Title, newBook.Title)
+			}
+		})
+	}
 }
 
 func TestGet(t *testing.T) {
