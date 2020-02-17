@@ -207,6 +207,20 @@ func (_m *MockService) GetSubjectsByID(subjectIDs []int64) ([]string, error) {
 	return r0, r1
 }
 
+// SaveAuthors provides a mock function with given fields: authors
+func (_m *MockService) SaveAuthors(authors []string) error {
+	ret := _m.Called(authors)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func([]string) error); ok {
+		r0 = rf(authors)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // SaveBookAuthors provides a mock function with given fields: bookID, authorIDs
 func (_m *MockService) SaveBookAuthors(bookID string, authorIDs []int64) error {
 	ret := _m.Called(bookID, authorIDs)
