@@ -54,15 +54,35 @@ func TestCreate(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
+	ID := util.NewID()
+	IDPatch := monkey.Patch(util.NewID, func() string {
+		return ID
+	})
+	defer IDPatch.Unpatch()
+
+	subjects := []string{"Mathematics", "Physics"}
+	subjectIDs := []int64{1, 2}
+	authors := []string{"author1", "author2"}
+	authorIDs := []int64{1, 2}
+
 	book := &Book{
-		ID: util.NewID(),
+		ID:      ID,
+		Title:   "book title",
+		Subject: subjects,
+		Author:  authors,
 	}
+
 	bookRepository.On("Get", book.ID).Return(book, nil)
+	bookRepository.On("GetBookSubjectIDs", book.ID).Return(subjectIDs, nil)
+	bookRepository.On("GetSubjectsByID", subjectIDs).Return(subjects, nil)
+	bookRepository.On("GetBookAuthorIDs", book.ID).Return(authorIDs, nil)
+	bookRepository.On("GetAuthorsByID", authorIDs).Return(authors, nil)
 
 	newBook, err := bookService.Get(book.ID)
 
 	require.Nil(t, err)
 	require.Equal(t, book.ID, newBook.ID)
+	require.Equal(t, book.Title, newBook.Title)
 }
 
 func TestUpdate(t *testing.T) {
