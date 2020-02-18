@@ -2,7 +2,6 @@ package book
 
 import (
 	"testing"
-	"time"
 
 	"github.com/bouk/monkey"
 	"github.com/stretchr/testify/require"
@@ -14,17 +13,14 @@ var bookRepository = &MockRepository{}
 var bookService = service{bookRepository: bookRepository}
 
 func TestCreate(t *testing.T) {
-	createdTime := time.Now()
-	timePatch := monkey.Patch(time.Now, func() time.Time {
-		return createdTime
-	})
-	defer timePatch.Unpatch()
+	createdTime, createdTimePatch := util.CreatedTimePatch()
+	defer createdTimePatch.Unpatch()
 
-	ID := util.NewID()
-	IDPatch := monkey.Patch(util.NewID, func() string {
-		return ID
-	})
-	defer IDPatch.Unpatch()
+	ID1, ID1Patch := util.NewIDPatch()
+	defer ID1Patch.Unpatch()
+
+	ID2, ID2Patch := util.NewIDPatch()
+	defer ID2Patch.Unpatch()
 
 	subjects := []string{"Mathematics", "Physics"}
 	subjectIDs := []int64{1, 2}
@@ -32,7 +28,7 @@ func TestCreate(t *testing.T) {
 	authorIDs := []int64{1, 2}
 
 	book := &Book{
-		ID:      ID,
+		ID:      ID1,
 		Title:   "book",
 		Subject: subjects,
 		Author:  authors,
@@ -40,7 +36,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	errorBook := &Book{
-		ID:      ID,
+		ID:      ID2,
 		Title:   "errorBook",
 		Subject: subjects,
 		Author:  authors,
@@ -76,7 +72,7 @@ func TestCreate(t *testing.T) {
 			bookRepository.On("GetAuthorIDs", book.Author).Return(authorIDs, nil)
 			bookRepository.On("SaveBookAuthors", book.ID, authorIDs).Return(nil)
 
-			newBook, err := bookService.Create(book)
+			newBook, err := bookService.Create(tc.book)
 
 			require.Equal(t, tc.err, err)
 
@@ -108,7 +104,7 @@ func TestGet(t *testing.T) {
 	}
 
 	errorBook := &Book{
-		ID:      ID,
+		ID:      util.NewID(),
 		Title:   "errorBook",
 		Subject: subjects,
 		Author:  authors,
@@ -142,7 +138,7 @@ func TestGet(t *testing.T) {
 			bookRepository.On("GetBookAuthorIDs", book.ID).Return(authorIDs, nil)
 			bookRepository.On("GetAuthorsByID", authorIDs).Return(authors, nil)
 
-			newBook, err := bookService.Get(book.ID)
+			newBook, err := bookService.Get(tc.book.ID)
 
 			require.Equal(t, tc.err, err)
 
@@ -167,6 +163,11 @@ func TestUpdate(t *testing.T) {
 		Title: "edited book",
 	}
 
+	errorBook := &Book{
+		ID:    ID,
+		Title: "error book",
+	}
+
 	tt := []struct {
 		name          string
 		book          *Book
@@ -181,7 +182,7 @@ func TestUpdate(t *testing.T) {
 		},
 		{
 			name:          "failed updating a Book",
-			book:          book,
+			book:          errorBook,
 			returnPayload: nil,
 			err:           ErrUpdateBook,
 		},
@@ -191,7 +192,7 @@ func TestUpdate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			bookRepository.On("Update", tc.book).Return(tc.returnPayload, tc.err)
 
-			updatedBook, err := bookService.Update(book)
+			updatedBook, err := bookService.Update(tc.book)
 
 			require.Equal(t, tc.err, err)
 
@@ -231,7 +232,7 @@ func TestDelete(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			bookRepository.On("Delete", tc.ID).Return(tc.err)
 
-			err := bookService.Delete(book.ID)
+			err := bookService.Delete(tc.ID)
 
 			require.Equal(t, tc.err, err)
 		})
