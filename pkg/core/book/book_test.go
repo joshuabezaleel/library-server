@@ -378,3 +378,184 @@ func TestGetSubjectsByID(t *testing.T) {
 		})
 	}
 }
+
+func TestSaveAuthors(t *testing.T) {
+	authors := []string{"author 1", "author 2"}
+
+	tt := []struct {
+		name    string
+		authors []string
+		err     error
+	}{
+		{
+			name:    "success saving authors",
+			authors: authors,
+			err:     nil,
+		},
+		{
+			name:    "failed saving authors",
+			authors: nil,
+			err:     ErrSaveAuthors,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("SaveAuthors", tc.authors).Return(tc.err)
+
+			err := bookService.SaveAuthors(tc.authors)
+
+			require.Equal(t, tc.err, err)
+		})
+	}
+}
+
+func TestGetAuthorIDs(t *testing.T) {
+	authors := []string{"author1", "author2"}
+	authorIDs := []int64{1, 2}
+
+	tt := []struct {
+		name              string
+		authors           []string
+		returnedAuthorIDs []int64
+		err               error
+	}{
+		{
+			name:              "success retrieving authorIDs",
+			authors:           authors,
+			returnedAuthorIDs: authorIDs,
+			err:               nil,
+		},
+		{
+			name:              "failed retrieving authorIDs",
+			authors:           []string{"test"},
+			returnedAuthorIDs: nil,
+			err:               ErrGetAuthorIDs,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("GetAuthorIDs", tc.authors).Return(tc.returnedAuthorIDs, tc.err)
+
+			retrievedAuthorIDs, err := bookService.GetAuthorIDs(tc.authors)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, authorIDs, retrievedAuthorIDs)
+			}
+		})
+	}
+}
+
+func TestSaveBookAuthors(t *testing.T) {
+	authorIDs := []int64{1, 2}
+
+	tt := []struct {
+		name      string
+		bookID    string
+		authorIDs []int64
+		err       error
+	}{
+		{
+			name:      "success saving book's authors",
+			bookID:    util.NewID(),
+			authorIDs: authorIDs,
+			err:       nil,
+		},
+		{
+			name:      "failed saving book's authors",
+			bookID:    util.NewID(),
+			authorIDs: authorIDs,
+			err:       ErrSaveBookAuthors,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("SaveBookAuthors", tc.bookID, tc.authorIDs).Return(tc.err)
+
+			err := bookService.SaveBookAuthors(tc.bookID, tc.authorIDs)
+
+			require.Equal(t, tc.err, err)
+		})
+	}
+}
+
+func TestGetBookAuthorIDs(t *testing.T) {
+	authorIDs := []int64{1, 2}
+
+	tt := []struct {
+		name              string
+		bookID            string
+		returnedAuthorIDs []int64
+		err               error
+	}{
+		{
+			name:              "success retrieving book's authorIDs",
+			bookID:            util.NewID(),
+			returnedAuthorIDs: authorIDs,
+			err:               nil,
+		},
+		{
+			name:              "failed retrieving book's authorIDs",
+			bookID:            util.NewID(),
+			returnedAuthorIDs: nil,
+			err:               ErrGetBookAuthorIDs,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("GetBookAuthorIDs", tc.bookID).Return(tc.returnedAuthorIDs, tc.err)
+
+			returnedAuthorIDs, err := bookService.GetBookAuthorIDs(tc.bookID)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, authorIDs, returnedAuthorIDs)
+			}
+		})
+	}
+}
+
+func TestGetAuthorsByID(t *testing.T) {
+	authorIDs := []int64{1, 2}
+	authors := []string{"author1", "author2"}
+
+	tt := []struct {
+		name            string
+		authorIDs       []int64
+		returnedAuthors []string
+		err             error
+	}{
+		{
+			name:            "success retrieving authors",
+			authorIDs:       authorIDs,
+			returnedAuthors: authors,
+			err:             nil,
+		},
+		{
+			name:            "failed retrieving authors",
+			authorIDs:       []int64{},
+			returnedAuthors: nil,
+			err:             ErrGetAuthorsByID,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookRepository.On("GetAuthorsByID", tc.authorIDs).Return(tc.returnedAuthors, tc.err)
+
+			returnedAuthors, err := bookService.GetAuthorsByID(tc.authorIDs)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, authors, returnedAuthors)
+			}
+		})
+	}
+}
