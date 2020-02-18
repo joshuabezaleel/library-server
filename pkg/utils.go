@@ -24,8 +24,8 @@ func CreatedTimePatch() (time.Time, *monkey.PatchGuard) {
 	return createdTime, timePatch
 }
 
-// NewIDPatch returns the patched ID for creating a
-// ID.
+// NewIDPatch returns the patched ID for
+// creating ID for testing purpose.
 func NewIDPatch() (string, *monkey.PatchGuard) {
 	ID := NewID()
 	IDPatch := monkey.Patch(NewID, func() string {
