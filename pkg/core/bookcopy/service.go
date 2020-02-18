@@ -44,11 +44,7 @@ func NewBookCopyService(bookCopyRepository Repository, bookService book.Service)
 func (s *service) Create(bookCopy *BookCopy) (*BookCopy, error) {
 	var newBookCopy *BookCopy
 
-	if bookCopy.ID == "" {
-		newBookCopy = NewBookCopy(util.NewID(), bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
-	} else {
-		newBookCopy = NewBookCopy(bookCopy.ID, bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
-	}
+	newBookCopy = NewBookCopy(util.NewID(), bookCopy.Barcode, bookCopy.BookID, bookCopy.Condition, time.Now())
 
 	newBookCopy, err := s.bookCopyRepository.Save(newBookCopy)
 	if err != nil {

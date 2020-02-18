@@ -2,9 +2,7 @@ package bookcopy
 
 import (
 	"testing"
-	"time"
 
-	"github.com/bouk/monkey"
 	"github.com/stretchr/testify/require"
 
 	util "github.com/joshuabezaleel/library-server/pkg"
@@ -21,45 +19,121 @@ var bookCopyService = service{
 }
 
 func TestCreate(t *testing.T) {
-	createdTime := time.Now()
-	timePatch := monkey.Patch(time.Now, func() time.Time {
-		return createdTime
-	})
-	defer timePatch.Unpatch()
+	subjects := []string{"Mathematics", "Physics"}
+	subjectIDs := []int64{1, 2}
+	authors := []string{"author1", "author2"}
+	authorIDs := []int64{1, 2}
 
-	initialBookCopy := &BookCopy{
-		ID:      util.NewID(),
-		BookID:  util.NewID(),
-		AddedAt: createdTime,
-	}
+	createdTime, createdTimePatch := util.CreatedTimePatch()
+	defer createdTimePatch.Unpatch()
+
 	book := &book.Book{
 		ID:       util.NewID(),
+		Subject:  subjects,
+		Author:   authors,
 		Quantity: 0,
 		AddedAt:  createdTime,
 	}
 
-	bookCopyRepository.On("Save", initialBookCopy).Return(initialBookCopy, nil)
-	bookRepository.On("Get", initialBookCopy.BookID).Return(book, nil)
+	ID, IDPatch := util.NewIDPatch()
+	defer IDPatch.Unpatch()
 
-	book.Quantity++
-	bookRepository.On("Update", book).Return(book, nil)
+	bookCopy := &BookCopy{
+		ID:        ID,
+		Condition: "Available",
+		BookID:    book.ID,
+		AddedAt:   createdTime,
+	}
 
-	newBookCopy, err := bookCopyService.Create(initialBookCopy)
+	errorBookCopy := &BookCopy{
+		ID:        ID,
+		Condition: "Repaired",
+		BookID:    book.ID,
+		AddedAt:   createdTime,
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, initialBookCopy.ID, newBookCopy.ID)
+	tt := []struct {
+		name             string
+		bookCopy         *BookCopy
+		returnedBookCopy *BookCopy
+		err              error
+	}{
+		{
+			name:             "success creating a Book Copy",
+			bookCopy:         bookCopy,
+			returnedBookCopy: bookCopy,
+			err:              nil,
+		},
+		{
+			name:             "failed creating a Book Copy",
+			bookCopy:         errorBookCopy,
+			returnedBookCopy: nil,
+			err:              ErrCreateBookCopy,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookCopyRepository.On("Save", tc.bookCopy).Return(tc.returnedBookCopy, tc.err)
+			bookRepository.On("Get", book.ID).Return(book, nil)
+			bookRepository.On("GetBookSubjectIDs", book.ID).Return(subjectIDs, nil)
+			bookRepository.On("GetSubjectsByID", subjectIDs).Return(subjects, nil)
+			bookRepository.On("GetBookAuthorIDs", book.ID).Return(authorIDs, nil)
+			bookRepository.On("GetAuthorsByID", authorIDs).Return(authors, nil)
+
+			book.Quantity++
+			bookRepository.On("Update", book).Return(book, nil)
+
+			returnedBookCopy, err := bookCopyService.Create(tc.bookCopy)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, tc.bookCopy.ID, returnedBookCopy.ID)
+				require.Equal(t, tc.bookCopy.Condition, returnedBookCopy.Condition)
+			}
+		})
+	}
 }
 
 func TestGet(t *testing.T) {
 	bookCopy := &BookCopy{
 		ID: util.NewID(),
 	}
-	bookCopyRepository.On("Get", bookCopy.ID).Return(bookCopy, nil)
 
-	newBookCopy, err := bookCopyService.Get(bookCopy.ID)
+	tt := []struct {
+		name             string
+		ID               string
+		returnedBookCopy *BookCopy
+		err              error
+	}{
+		{
+			name:             "success retrieving a Book Copy",
+			ID:               bookCopy.ID,
+			returnedBookCopy: bookCopy,
+			err:              nil,
+		},
+		{
+			name:             "failed retrieving a Book Copy",
+			ID:               util.NewID(),
+			returnedBookCopy: nil,
+			err:              ErrGetBookCopy,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, bookCopy.ID, newBookCopy.ID)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookCopyRepository.On("Get", tc.ID).Return(tc.returnedBookCopy, tc.err)
+
+			returnedBookCopy, err := bookCopyService.Get(tc.ID)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, bookCopy.ID, returnedBookCopy.ID)
+			}
+		})
+	}
 }
 
 func TestUpdate(t *testing.T) {
@@ -73,13 +147,44 @@ func TestUpdate(t *testing.T) {
 		Condition: "Available",
 	}
 
-	bookCopyRepository.On("Update", bookCopy).Return(expectedBookCopy, nil)
+	errorBookCopy := &BookCopy{
+		ID: util.NewID(),
+	}
 
-	updatedBookCopy, err := bookCopyService.Update(bookCopy)
+	tt := []struct {
+		name             string
+		bookCopy         *BookCopy
+		returnedBookCopy *BookCopy
+		err              error
+	}{
+		{
+			name:             "success updating a Book Copy",
+			bookCopy:         bookCopy,
+			returnedBookCopy: expectedBookCopy,
+			err:              nil,
+		},
+		{
+			name:             "failed updating a Book Copy",
+			bookCopy:         errorBookCopy,
+			returnedBookCopy: nil,
+			err:              ErrUpdateBookCopy,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, bookCopy.ID, updatedBookCopy.ID)
-	require.Equal(t, expectedBookCopy.Condition, updatedBookCopy.Condition)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookCopyRepository.On("Update", tc.bookCopy).Return(tc.returnedBookCopy, tc.err)
+
+			updatedBookCopy, err := bookCopyService.Update(tc.bookCopy)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, expectedBookCopy.ID, updatedBookCopy.ID)
+				require.Equal(t, expectedBookCopy.Condition, updatedBookCopy.Condition)
+			}
+		})
+	}
 }
 
 func TestDelete(t *testing.T) {
@@ -87,9 +192,30 @@ func TestDelete(t *testing.T) {
 		ID: util.NewID(),
 	}
 
-	bookCopyRepository.On("Delete", bookCopy.ID).Return(nil)
+	tt := []struct {
+		name string
+		ID   string
+		err  error
+	}{
+		{
+			name: "success deleting a Book Copy",
+			ID:   bookCopy.ID,
+			err:  nil,
+		},
+		{
+			name: "failed deleting a Book Copy",
+			ID:   util.NewID(),
+			err:  ErrDeleteBookCopy,
+		},
+	}
 
-	err := bookCopyService.Delete(bookCopy.ID)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			bookCopyRepository.On("Delete", tc.ID).Return(tc.err)
 
-	require.Nil(t, err)
+			err := bookCopyService.Delete(tc.ID)
+
+			require.Equal(t, tc.err, err)
+		})
+	}
 }
