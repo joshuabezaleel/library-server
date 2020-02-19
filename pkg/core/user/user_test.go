@@ -271,6 +271,8 @@ func TestGetRole(t *testing.T) {
 
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
 			userRepository.On("GetIDByUsername", tc.user.Username).Return(tc.user.ID, nil)
 
 			userRepository.On("GetRole", tc.user.ID).Return(tc.user.Role, tc.err)
@@ -284,7 +286,6 @@ func TestGetRole(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestGetTotalFine(t *testing.T) {
