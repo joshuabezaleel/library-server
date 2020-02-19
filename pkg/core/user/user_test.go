@@ -1,9 +1,7 @@
 package user
 
 import (
-	"errors"
 	"testing"
-	"time"
 
 	"github.com/bouk/monkey"
 	"github.com/stretchr/testify/require"
@@ -15,11 +13,8 @@ var userRepository = &MockRepository{}
 var userService = service{userRepository: userRepository}
 
 func TestCreate(t *testing.T) {
-	createdTime := time.Now()
-	timePatch := monkey.Patch(time.Now, func() time.Time {
-		return createdTime
-	})
-	defer timePatch.Unpatch()
+	createdTime, createdTimePatch := util.CreatedTimePatch()
+	defer createdTimePatch.Unpatch()
 
 	expectedPwd := "password"
 	passwordPatch := monkey.Patch(hashAndSalt, func(password string) string {
@@ -27,29 +22,97 @@ func TestCreate(t *testing.T) {
 	})
 	defer passwordPatch.Unpatch()
 
+	ID, IDPatch := util.NewIDPatch()
+	defer IDPatch.Unpatch()
+
 	user := &User{
-		ID:           util.NewID(),
-		RegisteredAt: createdTime,
+		ID:           ID,
+		Username:     "username",
 		Password:     expectedPwd,
+		RegisteredAt: createdTime,
 	}
-	userRepository.On("Save", user).Return(user, nil)
 
-	newUser, err := userService.Create(user)
+	errorUser := &User{
+		ID:           ID,
+		Username:     "error username",
+		Password:     expectedPwd,
+		RegisteredAt: createdTime,
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, user.ID, newUser.ID)
+	tt := []struct {
+		name         string
+		user         *User
+		returnedUser *User
+		err          error
+	}{
+		{
+			name:         "success creating a User",
+			user:         user,
+			returnedUser: user,
+			err:          nil,
+		},
+		{
+			name:         "failed creating a User",
+			user:         errorUser,
+			returnedUser: nil,
+			err:          ErrCreateUser,
+		},
+	}
+
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("Save", tc.user).Return(tc.returnedUser, tc.err)
+
+			newUser, err := userService.Create(tc.user)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, user.ID, newUser.ID)
+				require.Equal(t, user.Username, newUser.Username)
+			}
+		})
+	}
 }
 
 func TestGet(t *testing.T) {
 	user := &User{
 		ID: util.NewID(),
 	}
-	userRepository.On("Get", user.ID).Return(user, nil)
 
-	newUser, err := userService.Get(user.ID)
+	tt := []struct {
+		name         string
+		ID           string
+		returnedUser *User
+		err          error
+	}{
+		{
+			name:         "success retrieving a User",
+			ID:           user.ID,
+			returnedUser: user,
+			err:          nil,
+		},
+		{
+			name:         "failed retrieving a User",
+			ID:           util.NewID(),
+			returnedUser: nil,
+			err:          ErrGetUser,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, user.ID, newUser.ID)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("Get", tc.ID).Return(tc.returnedUser, tc.err)
+
+			returnedUser, err := userService.Get(tc.ID)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, user.ID, returnedUser.ID)
+			}
+		})
+	}
 }
 func TestUpdate(t *testing.T) {
 	user := &User{
@@ -62,13 +125,44 @@ func TestUpdate(t *testing.T) {
 		Username: "editedusername",
 	}
 
-	userRepository.On("Update", user).Return(expectedUser, nil)
+	errorUser := &User{
+		ID: util.NewID(),
+	}
 
-	updatedUser, err := userService.Update(user)
+	tt := []struct {
+		name         string
+		user         *User
+		returnedUser *User
+		err          error
+	}{
+		{
+			name:         "success updating a User",
+			user:         user,
+			returnedUser: expectedUser,
+			err:          nil,
+		},
+		{
+			name:         "failed updating a User",
+			user:         errorUser,
+			returnedUser: nil,
+			err:          ErrUpdateUser,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, user.ID, updatedUser.ID)
-	require.Equal(t, expectedUser.Username, updatedUser.Username)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("Update", tc.user).Return(tc.returnedUser, tc.err)
+
+			updatedUser, err := userService.Update(tc.user)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, expectedUser.ID, updatedUser.ID)
+				require.Equal(t, expectedUser.Username, updatedUser.Username)
+			}
+		})
+	}
 }
 
 func TestDelete(t *testing.T) {
@@ -76,11 +170,32 @@ func TestDelete(t *testing.T) {
 		ID: util.NewID(),
 	}
 
-	userRepository.On("Delete", user.ID).Return(nil)
+	tt := []struct {
+		name string
+		ID   string
+		err  error
+	}{
+		{
+			name: "success deleting a User",
+			ID:   user.ID,
+			err:  nil,
+		},
+		{
+			name: "failed deleting a User",
+			ID:   util.NewID(),
+			err:  ErrDeleteUser,
+		},
+	}
 
-	err := userService.Delete(user.ID)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("Delete", tc.ID).Return(tc.err)
 
-	require.Nil(t, err)
+			err := userService.Delete(tc.ID)
+
+			require.Equal(t, tc.err, err)
+		})
+	}
 }
 
 func TestGetUserIDByUsername(t *testing.T) {
@@ -89,40 +204,68 @@ func TestGetUserIDByUsername(t *testing.T) {
 		Username: "username",
 	}
 
-	userRepository.On("GetIDByUsername", user.Username).Return(user.ID, nil)
+	tt := []struct {
+		name           string
+		username       string
+		returnedUserID string
+		err            error
+	}{
+		{
+			name:           "success retrieving user's ID",
+			username:       user.Username,
+			returnedUserID: user.ID,
+			err:            nil,
+		},
+		{
+			name:           "failed retrieving user's ID",
+			username:       "random username",
+			returnedUserID: "",
+			err:            ErrGetUserIDByUsername,
+		},
+	}
 
-	userID, err := userService.GetUserIDByUsername(user.Username)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("GetIDByUsername", tc.username).Return(tc.returnedUserID, tc.err)
 
-	require.Nil(t, err)
-	require.Equal(t, user.ID, userID)
+			userID, err := userService.GetUserIDByUsername(tc.username)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, user.ID, userID)
+			}
+		})
+	}
 }
 
 func TestGetRole(t *testing.T) {
+	user := &User{
+		ID:       util.NewID(),
+		Username: "username",
+		Role:     "librarian",
+	}
+
+	errorUser := &User{
+		ID:       util.NewID(),
+		Username: "error username",
+		Role:     "",
+	}
+
 	tt := []struct {
-		name         string
-		user         *User
-		expectedRole string
-		err          error
+		name string
+		user *User
+		err  error
 	}{
 		{
-			name: "user with role librarian",
-			user: &User{
-				ID:       util.NewID(),
-				Username: "librarian1",
-				Role:     "librarian",
-			},
-			expectedRole: "librarian",
-			err:          nil,
+			name: "success retrieving user's role",
+			user: user,
+			err:  nil,
 		},
 		{
-			name: "user who is not a librarian",
-			user: &User{
-				ID:       util.NewID(),
-				Username: "student1",
-				Role:     "student",
-			},
-			expectedRole: "student",
-			err:          nil,
+			name: "failed retrieving user's role",
+			user: errorUser,
+			err:  ErrGetRole,
 		},
 	}
 
@@ -130,28 +273,18 @@ func TestGetRole(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			userRepository.On("GetIDByUsername", tc.user.Username).Return(tc.user.ID, nil)
 
-			userRepository.On("GetRole", tc.user.ID).Return(tc.user.Role, nil)
+			userRepository.On("GetRole", tc.user.ID).Return(tc.user.Role, tc.err)
 
 			role, err := userService.GetRole(tc.user.Username)
 
-			require.Equal(t, tc.expectedRole, role)
 			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, tc.user.Role, role)
+			}
 		})
 	}
 
-	// Testing error on CheckLibrarian
-	userRepository.On("GetIDByUsername", "random username").Return("random user ID", nil)
-	userRepository.On("GetRole", "random user ID").Return("", errors.New("another error"))
-
-	_, err := userService.GetRole("random username")
-	require.NotNil(t, err)
-
-	// Testing error on GetIDByUsername
-	userRepository.On("GetIDByUsername", "random username 2").Return("", errors.New("another error"))
-	// userRepository.On("CheckLibrarian", "")
-
-	_, err = userService.GetRole("random username 2")
-	require.NotNil(t, err)
 }
 
 func TestGetTotalFine(t *testing.T) {
@@ -160,34 +293,103 @@ func TestGetTotalFine(t *testing.T) {
 		TotalFine: 7000,
 	}
 
-	userRepository.On("GetTotalFine", user.ID).Return(user.TotalFine, nil)
+	errorUser := &User{
+		ID:        util.NewID(),
+		TotalFine: 0,
+	}
 
-	totalFine, err := userService.GetTotalFine(user.ID)
+	tt := []struct {
+		name string
+		user *User
+		err  error
+	}{
+		{
+			name: "success retrieving user's total fine",
+			user: user,
+			err:  nil,
+		},
+		{
+			name: "failed retrieving user's total fine",
+			user: errorUser,
+			err:  ErrGetTotalFine,
+		},
+	}
 
-	require.Nil(t, err)
-	require.Equal(t, user.TotalFine, totalFine)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("GetTotalFine", tc.user.ID).Return(tc.user.TotalFine, tc.err)
+
+			totalFine, err := userService.GetTotalFine(tc.user.ID)
+
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, user.TotalFine, totalFine)
+			}
+		})
+	}
 }
 
 func TestAddFine(t *testing.T) {
-	// Happy path.
 	user := &User{
 		ID:        util.NewID(),
 		TotalFine: 2000,
 	}
+
+	errorUser := &User{
+		ID:        util.NewID(),
+		TotalFine: 0,
+	}
+
 	var fine uint32 = 7000
 
-	userRepository.On("GetTotalFine", user.ID).Return(user.TotalFine, nil)
+	tt := []struct {
+		name string
+		user *User
+		fine uint32
+		err  error
+	}{
+		{
+			name: "success adding fine to User",
+			user: user,
+			fine: fine,
+			err:  nil,
+		},
+		{
+			name: "failed adding fine to User",
+			user: errorUser,
+			fine: fine,
+			err:  ErrAddFine,
+		},
+	}
 
-	userRepository.On("AddFine", user.ID, user.TotalFine+fine).Return(nil)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			userRepository.On("GetTotalFine", tc.user.ID).Return(tc.user.TotalFine, nil)
 
-	addedFine, err := userService.AddFine(user.ID, fine)
-	require.Nil(t, err)
-	require.Equal(t, user.TotalFine+fine, addedFine)
+			userRepository.On("AddFine", tc.user.ID, tc.user.TotalFine+tc.fine).Return(tc.err)
 
-	// Error on GetTotalFine
-	userRepository.On("GetTotalFine", "another username").Return(uint32(0), errors.New("another error"))
+			totalFine, err := userService.AddFine(tc.user.ID, tc.fine)
 
-	addedFine, err = userService.AddFine("another username", fine)
-	require.NotNil(t, err)
-	require.Equal(t, uint32(0), addedFine)
+			require.Equal(t, tc.err, err)
+
+			if tc.err == nil {
+				require.Equal(t, tc.user.TotalFine+fine, totalFine)
+			}
+		})
+	}
+	// userRepository.On("GetTotalFine", user.ID).Return(user.TotalFine, nil)
+
+	// userRepository.On("AddFine", user.ID, user.TotalFine+fine).Return(nil)
+
+	// addedFine, err := userService.AddFine(user.ID, fine)
+	// require.Nil(t, err)
+	// require.Equal(t, user.TotalFine+fine, addedFine)
+
+	// // Error on GetTotalFine
+	// userRepository.On("GetTotalFine", "another username").Return(uint32(0), errors.New("another error"))
+
+	// addedFine, err = userService.AddFine("another username", fine)
+	// require.NotNil(t, err)
+	// require.Equal(t, uint32(0), addedFine)
 }
