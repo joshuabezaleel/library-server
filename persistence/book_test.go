@@ -40,7 +40,7 @@ func TestBookSave(t *testing.T) {
 	result := sqlmock.NewResult(1, 1)
 
 	Mock.ExpectExec("INSERT INTO books").
-		WithArgs(validBook.ID, validBook.Title, validBook.Publisher, validBook.YearPublished, validBook.CallNumber, validBook.CoverPicture, validBook.ISBN, validBook.Collation, validBook.Edition, validBook.Description, validBook.LOCClassification, validBook.Subject, validBook.Author, validBook.Quantity, validBook.AddedAt).
+		WithArgs(validBook.ID, validBook.Title, validBook.Publisher, validBook.YearPublished, validBook.CallNumber, validBook.CoverPicture, validBook.ISBN, validBook.Collation, validBook.Edition, validBook.Description, validBook.LOCClassification, validBook.Quantity, validBook.AddedAt).
 		WillReturnResult(result)
 
 	// Tests.
@@ -139,7 +139,7 @@ func TestBookUpdate(t *testing.T) {
 	result := sqlmock.NewResult(1, 1)
 
 	Mock.ExpectExec("UPDATE books SET").
-		WithArgs(validBook.Title, validBook.Publisher, validBook.YearPublished, validBook.CallNumber, validBook.CoverPicture, validBook.ISBN, validBook.Collation, validBook.Edition, validBook.Description, validBook.LOCClassification, validBook.Subject, validBook.Author, validBook.Quantity, validBook.ID).
+		WithArgs(validBook.Title, validBook.Publisher, validBook.YearPublished, validBook.CallNumber, validBook.CoverPicture, validBook.ISBN, validBook.Collation, validBook.Edition, validBook.Description, validBook.LOCClassification, validBook.Quantity, validBook.ID).
 		WillReturnResult(result)
 
 	rows := sqlmock.NewRows([]string{"id", "title"}).
@@ -213,77 +213,3 @@ func TestBookDelete(t *testing.T) {
 		})
 	}
 }
-
-// func TestBookSave(t *testing.T) {
-// 	// Create a new Book and save it.
-// 	book := &book.Book{
-// 		ID:         util.NewID(),
-// 		CallNumber: util.NewID(),
-// 	}
-// 	newBook, err := repository.BookRepository.Save(book)
-
-// 	// Happy path.
-// 	require.Nil(t, err)
-// 	require.Equal(t, book.ID, newBook.ID)
-
-// 	repository.CleanUp()
-// }
-
-// func TestBookGet(t *testing.T) {
-// 	// Create a new Book and save it.
-// 	book := &book.Book{
-// 		ID: util.NewID(),
-// 	}
-// 	book1, err := repository.BookRepository.Save(book)
-// 	require.Nil(t, err)
-
-// 	// Get the Book.
-// 	book2, err := repository.BookRepository.Get(book.ID)
-// 	require.Nil(t, err)
-// 	require.Equal(t, book2.ID, book1.ID)
-
-// 	// Get invalid Book.
-// 	_, err = repository.BookRepository.Get(util.NewID())
-// 	require.NotNil(t, err)
-
-// 	repository.CleanUp()
-// }
-
-// func TestBookUpdate(t *testing.T) {
-// 	// Create a new Book and save it.
-// 	book := &book.Book{
-// 		ID:    util.NewID(),
-// 		Title: "title",
-// 	}
-// 	book1, err := repository.BookRepository.Save(book)
-// 	require.Nil(t, err)
-
-// 	// Update the Book's title.
-// 	book1.Title = "edited title"
-// 	book2, err := repository.BookRepository.Update(book1)
-// 	require.Nil(t, err)
-// 	require.Equal(t, book1.ID, book2.ID)
-// 	require.Equal(t, book2.Title, "edited title")
-
-// 	repository.CleanUp()
-// }
-
-// func TestBookDelete(t *testing.T) {
-// 	// Create a new Book and save it.
-// 	book := &book.Book{
-// 		ID:    util.NewID(),
-// 		Title: "title",
-// 	}
-// 	_, err := repository.BookRepository.Save(book)
-// 	require.Nil(t, err)
-
-// 	// Delete the Book that was just created.
-// 	err = repository.BookRepository.Delete(book.ID)
-// 	require.Nil(t, err)
-
-// 	// Unable to retrieve the Book that was just deleted.
-// 	_, err = repository.BookRepository.Get(book.ID)
-// 	require.NotNil(t, err)
-
-// 	repository.CleanUp()
-// }
